@@ -1,100 +1,78 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Корзина</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-body{margin:0;font-family:'Inter',sans-serif;background:#0f1220;color:#e8ebff;padding:16px;}
-h1,h2{margin-bottom:12px;}
-.card{background:#171a2a;border-radius:12px;padding:12px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
-.card img{width:50px;height:50px;}
-.btn{margin-top:8px;padding:10px 12px;border-radius:12px;background:linear-gradient(135deg,#6ea8ff,#7b6cff);color:white;border:none;font-weight:700;cursor:pointer;}
-
-label{display:block;margin:6px 0;}
-input[type="text"], input[type="url"]{padding:6px;border-radius:6px;border:none;width:100%;}
-input[type="color"]{width:50px;height:30px;border:none;vertical-align:middle;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Корзина</title>
+  <style>
+    :root{
+      --bg:#0f1220; --card:#171a2a; --text:#e8ebff; --muted:#9aa3c7;
+      --accent:#6ea8ff; --accent-2:#7b6cff; --btn:#2a2f45; --btn-hover:#343a55;
+      --shadow:0 10px 30px rgba(0,0,0,0.25); --radius:18px;
+    }
+    body{margin:0; font-family:sans-serif; background:var(--bg); color:var(--text);}
+    .wrap{max-width:680px; margin:0 auto; padding:16px;}
+    .card{background:var(--card); border-radius:var(--radius); padding:14px; box-shadow:var(--shadow); margin-bottom:12px;}
+    input,button{width:100%; margin-top:8px; padding:10px; border-radius:10px; border:none; font-size:14px;}
+    input{background:#fff; color:#000;}
+    button{background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#fff; font-weight:700; cursor:pointer;}
+    button:hover{opacity:0.9;}
+  </style>
 </head>
 <body>
-<h1>Корзина</h1>
-<div id="cart"></div>
+<header class="wrap">
+  <h1>Корзина</h1>
+  <a href="index.html" style="color:var(--muted);">← Назад</a>
+</header>
 
-<h2>Настройки заказа</h2>
-<label>Ник:
-  <input type="text" id="nick" placeholder="Ваш ник">
-</label>
-<label>Основной цвет:
-  <input type="color" id="mainColor" value="#000000">
-</label>
-<label>Второстепенный цвет:
-  <input type="color" id="secondaryColor" 
+<main class="wrap">
+  <div id="list"></div>
 
-value="#ffffff">
-</label>
-<label>Ссылка на логотип (опционально):
-  <input type="url" id="logoUrl" placeholder="https://">
-</label>
-<label>
-  <button id="logoBtn">Инструкция по логотипу</button>
-</label>
+  <div class="card">
+    <h3>Данные для заказа</h3>
+    <input id="nickname" placeholder="Ваш ник">
+    <label style="display:block;margin-top:8px;">Основной цвет:</label>
+    <input id="primaryColor" type="color" value="#000000">
+    <label style="display:block;margin-top:8px;">Второстепенный цвет:</label>
+    <input id="secondaryColor" type="color" value="#ffffff">
+    <input id="logo" placeholder="Ссылка на логотип (или нажмите кнопку ниже)">
+    <button type="button" onclick="document.getElementById('logo').value='Логотип будет прислан в Telegram'">Отправлю логотип в Telegram</button>
+  </div>
 
-<button class="btn" id="sendOrder">Оформить заказ и открыть Telegram</button>
+  <button onclick="checkout()">Оформить заказ и открыть Telegram</button>
+</main>
 
 <script>
-const cartDiv = document.getElementById("cart");
-const logoBtn = document.getElementById("logoBtn");
-const sendBtn = document.getElementById("sendOrder");
-
 function getCart(){return JSON.parse(localStorage.getItem("cart")||"[]");}
-
-
-function renderCart(){
-  const cart = getCart();
-  if(cart.length===0){cartDiv.innerHTML="<p>Корзина пуста</p>"; return;}
-  cartDiv.innerHTML = "";
-  cart.forEach(i=>{
-    const card = document.createElement("div");
-    card.className="card";
-    
-    const img = document.createElement("img");
-    img.src = i.id+".json"; // для GIF или Lottie можно вставить картинку-превью
-    img.alt = i.name;
-    card.appendChild(img);
-    
-    const text = document.createElement("div");
-    text.textContent = `${i.name} — $${i.price.toFixed(2)}`;
-    card.appendChild(text);
-    
-    cartDiv.appendChild(card);
-  });
-
+function render(){
+  const list=document.getElementById("list");
+  let cart=getCart();
+  if(cart.length===0){list.innerHTML="<p>Корзина пуста</p>"; return;}
+  list.innerHTML=cart.map(c=>`
+    <div class="card">
+      <b>${c.name}</b> — ${c.price}$
+    </div>`).join('');
 }
 
-renderCart();
+function checkout(){
+  const cart=getCart();
+  if(cart.length===0){alert("Корзина пуста"); return;}
+  const nickname=document.getElementById("nickname").value.trim();
+  const primary=document.getElementById("primaryColor").value;
+  const secondary=document.getElementById("secondaryColor").value;
+  const logo=document.getElementById("logo").value.trim();
 
-logoBtn.onclick = ()=>{
-  alert("Логотип можно отправить в Telegram вместе с заказом, либо оставить ссылку в поле выше.");
+  let text="Заказ эмодзи:%0A";
+  cart.forEach(c=>{text+=`- ${c.name}%0A`;});
+  text+=`%0AНик: ${nickname}`;
+  text+=`%0AОсновной цвет: ${primary}`;
+  text+=`%0AВторостепенный цвет: ${secondary}`;
+  text+=`%0AЛоготип: ${logo}`;
+
+  window.open(`https://t.me/theConCreator?text=${text}`,"_blank");
 }
 
-sendBtn.onclick = ()=>{
-  const cart = getCart();
-  if(cart.length===0){alert("Корзина пуста!"); return;}
-  const nick = document.getElementById("nick").value || "Не указан";
-  const mainColor = document.getElementById("mainColor").value;
-  const secondaryColor = document.getElementById("secondaryColor").value;
-  const logoUrl = document.getElementById("logoUrl").value || "не 
-
-указан";
-
-  let text = `Заказ от ${nick}:\n`;
-  cart.forEach(i=>{text+=`- ${i.name} — $${i.price.toFixed(2)}\n`});
-  text += `Основной цвет: ${mainColor}\nВторостепенный цвет: ${secondaryColor}\nЛоготип: ${logoUrl}`;
-
-  const username = "theConCreator";
-  window.open(`https://t.me/${username}?start=${encodeURIComponent(text)}`, "_blank");
-}
+render();
 </script>
 </body>
 </html>
