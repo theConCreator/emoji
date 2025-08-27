@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Персональные эмодзи</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.6/lottie.min.js"></script>
+<style>
+:root{
+  --bg:#0f1220; --card:#171a2a; --text:#e8ebff; --muted:#9aa3c7;
+  --accent:#6ea8ff; --accent-2:#7b6cff; --btn:#2a2f45; --btn-hover:#343a55;
+  --shadow:0 10px 30px rgba(0,0,0,0.25); --radius:14px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial;background:var(--bg);color:var(--text)}
+.wrap{max-width:980px;margin:0 auto;padding:16px}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 0;flex-wrap:wrap;gap:12px}
+.cart-btn{color:var(--text);text-decoration:none;padding:10px 16px;border-radius:999px;background:var(--accent);font-weight:700;font-size:16px;box-shadow:var(--shadow);display:inline-flex;align-items:center;gap:6px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:16px}
+.card{background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center}
+.emoji-box{width:100%;aspect-ratio:1/1;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));display:grid;place-items:center;border:1px dashed rgba(255,255,255,0.04)}
+.name{font-weight:700;color:var(--text)}
+.btn{padding:10px 12px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));color:white;border:none;cursor:pointer;font-weight:700;width:100%}
+.btn-remove{background:#ff4d4f}
+.footer{margin-top:36px;border-top:1px solid rgba(255,255,255,0.04);padding-top:12px;color:var(--muted);text-align:center}
+.count-badge{background:linear-gradient(135deg,var(--accent),var(--accent-2));padding:3px 8px;border-radius:999px;font-weight:700}
+@media (min-width:900px){ .grid{gap:20px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1 style="margin:0;font-size:20px">Персональные Telegram эмодзи</h1>
+    <a class="cart-btn" href="cart.html">🛒 Корзина <span id="cartCount" class="count-badge">0</span></a>
+  </header>
+
+  <main>
+    <div class="grid" id="grid"></div>
+  </main>
+
+  <div class="footer">© theConCreator</div>
+</div>
+
+<script>
+const items = [
+  {id:"Flag1", name:"Флаг"},
+  {id:"Phone", name:"Телефон"},
+  {id:"Card", name:"Карточка"},
+  {id:"Case", name:"Кейс"},
+  {id:"HeartArms", name:"Сердце"},
+  {id:"TopSign", name:"ТОП"}
+];
+const PRICE = 0.8;
+
+function getCart(){ try { return JSON.parse(localStorage.getItem('cart')||'[]'); } catch(e){return []} }
+function setCart(cart){ localStorage.setItem('cart', JSON.stringify(cart)); render(); updateCount(); }
+function inCart(id){ return getCart().some(it=>it.item.id===id); }
+function addToCartById(id){ const item=items.find(i=>i.id===id); if(!item) return; let cart=getCart(); if(!cart.some(c=>c.item.id===id)){cart.push({item,price:PRICE}); setCart(cart); flash(`${item.name} добавлен в корзину`) } render(); }
+function removeFromCartById(id){ let cart=getCart(); cart=cart.filter(c=>c.item.id!==id); setCart(cart); render(); }
+
+const grid = document.getElementById('grid');
+const cartCountEl = document.getElementById('cartCount');
+
+function render(){
+  grid.innerHTML = items.map(i=>{
+    const added = inCart(i.id);
+    return `<div class="card">
+      <div class="emoji-box" id="anim-${i.id}"></div>
+      <div class="name">${i.name}</div>
+      ${added ? `<button class="btn btn-remove" data-action="remove" data-id="${i.id}">Убрать из корзины</button>`
+        : `<button class="btn" data-action="add" data-id="${i.id}">Добавить в корзину — $${PRICE.toFixed(2)}</button>`}
+    </div>`
+  }).join('');
+  // обработчики кнопок
+  grid.querySelectorAll('button[data-action]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const id=btn.dataset.id;
+      if(btn.dataset.action==='add') addToCartById(id); else removeFromCartById(id);
+    });
+  });
+  updateCount();
+  // Lottie
+  items.forEach(i=>{
+    const container=document.getElementById(`anim-${i.id}`);
+    if(container && !container.hasChildNodes()){
+      lottie.loadAnimation({container, renderer:'svg', loop:true, autoplay:true, path:`${i.id}.json`});
+    }
+  });
+}
+
+function updateCount(){ cartCountEl.textContent=getCart().length; }
+
+function flash(msg){
+  const el=document.createElement('div'); el.textContent=msg;
+  Object.assign(el.style,{position:'fixed',right:'16px',bottom:'16px',background:'rgba(0,0,0,0.7)',color:'white',padding:'10px 14px',borderRadius:'10px',boxShadow:'0 6px 20px rgba(0,0,0,0.4)',zIndex:9999,fontWeight:700});
+  document.body.appendChild(el);
+  setTimeout(()=>el.style.opacity='0',1200);
+  setTimeout(()=>el.remove(),1700);
+}
+
+render();
+</script>
+</body>
+</html>
