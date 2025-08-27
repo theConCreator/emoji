@@ -23,12 +23,12 @@ h1{font-size:20px;}
   box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px;
   text-align:center; align-items:center; position:relative; overflow:hidden;
 }
-.card.hit{border:2px solid orange;}
+.card.hit{border:2px solid orange; overflow: visible; position: relative;}
 .card.hit::before{
-  content:"ХИТ"; position:absolute; top:8px; right:8px;
-  background:orange; color:#fff; font-weight:700; padding:2px 8px;
-  font-size:12px; border-radius:2px; transform:rotate(45deg);
-  transform-origin: top right; box-shadow:0 2px 5px rgba(0,0,0,0.3); z-index:10;
+  content:"ХИТ"; position:absolute; top:0; right:0; width:70px; height:24px;
+  background:orange; color:#fff; font-weight:700; text-align:center; line-height:24px;
+  font-size:12px; transform:rotate(45deg) translate(5px,-5px); transform-origin:top right;
+  box-shadow:0 2px 5px rgba(0,0,0,0.3); z-index:10;
 }
 .emoji-box{
   aspect-ratio:1/1; border-radius:14px; background:#1e2235;
@@ -148,13 +148,13 @@ document.getElementById("sendOrder").addEventListener("click",()=>{
 
   let msg = `Новый заказ от @${username}:\n\n`;
   cart.forEach(c=>{
-    msg += `Эмодзи: ${c.item.name}\nЦена: $${c.price.toFixed(2)}\n`;
+    msg += `Эмодзи: ${c.item.name} ($${c.price.toFixed(2)})\n`;
   });
   msg += `Основной цвет: ${mainColor}\nВторостепенный цвет: ${secondaryColor}\n`;
-  msg += `Логотип: нужно отправить в Telegram вместе с заказом`;
+  msg += "Логотип: отправлен в Telegram\n";
 
-  const url = `https://t.me/theConCreator?text=${encodeURIComponent(msg)}`;
-  window.open(url,"_blank");
+  const tgLink = `https://t.me/theConCreator?text=${encodeURIComponent(msg)}`;
+  window.open(tgLink,"_blank");
 });
 
 render();
