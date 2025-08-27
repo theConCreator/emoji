@@ -23,12 +23,12 @@ h1{font-size:20px;}
   box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px;
   text-align:center; align-items:center; position:relative; overflow:hidden;
 }
-.card.hit{border:2px solid orange; overflow: visible; position: relative;}
-.card.hit::before{
-  content:"ХИТ"; position:absolute; top:0; right:0; width:70px; height:24px;
-  background:orange; color:#fff; font-weight:700; text-align:center; line-height:24px;
-  font-size:12px; transform:rotate(45deg) translate(5px,-5px); transform-origin:top right;
-  box-shadow:0 2px 5px rgba(0,0,0,0.3); z-index:10;
+.card.hit{border:2px solid orange;}
+.ribbon {
+  position: absolute; top:-10px; right:-35px;
+  width:120px; height:30px; background:orange; color:#fff; font-weight:bold;
+  text-align:center; line-height:30px; transform:rotate(45deg); z-index:10;
+  box-shadow:0 2px 5px rgba(0,0,0,0.3);
 }
 .emoji-box{
   aspect-ratio:1/1; border-radius:14px; background:#1e2235;
@@ -40,7 +40,7 @@ h1{font-size:20px;}
 .name{font-size:15px; font-weight:600;}
 input{padding:6px; border-radius:8px; border:none; margin-top:6px; width:90%;}
 .order-section{margin-top:20px; display:flex; flex-direction:column; gap:10px;}
-.note-logo{color:#e8ebff; background:#2a2f45; padding:10px; border-radius:12px; text-align:center; font-weight:700; box-shadow:var(--shadow);}
+.note-logo{color:#e8ebff; background:#2a2f45; padding:10px; border-radius:12px; text-align:center; font-weight:700; box-shadow:0 0 10px rgba(0,0,0,0.5);}
 .btn{margin-top:8px; padding:10px 12px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow);}
 </style>
 </head>
@@ -84,6 +84,7 @@ function render(){
     const hitClass = hits.includes(item.id)?"hit":"";
     return `
       <div class="card ${hitClass}">
+        ${hitClass?'<div class="ribbon">ХИТ</div>':''}
         <div class="emoji-box" id="box-${item.id}">
           <img src="${item.id}.png" alt="${item.name}">
           <div class="anim-box" id="anim-${item.id}"></div>
@@ -146,14 +147,11 @@ document.getElementById("sendOrder").addEventListener("click",()=>{
   const mainColor=document.getElementById("mainColor").value;
   const secondaryColor=document.getElementById("secondaryColor").value;
 
-  let msg = `Новый заказ от @${username}:\n\n`;
-  cart.forEach(c=>{
-    msg += `Эмодзи: ${c.item.name} ($${c.price.toFixed(2)})\n`;
-  });
-  msg += `Основной цвет: ${mainColor}\nВторостепенный цвет: ${secondaryColor}\n`;
-  msg += "Логотип: отправлен в Telegram\n";
+  let msg=`Ник: ${username}\nЭмодзи:\n`;
+  cart.forEach(c=>{ msg+=`- ${c.item.name} ($${c.price.toFixed(2)})\n`; });
+  msg+=`Основной цвет: ${mainColor}\nВторостепенный цвет: ${secondaryColor}\nЛоготип: отправлен в Telegram`;
 
-  const tgLink = `https://t.me/theConCreator?text=${encodeURIComponent(msg)}`;
+  const tgLink=`https://t.me/theConCreator?text=${encodeURIComponent(msg)}`;
   window.open(tgLink,"_blank");
 });
 
