@@ -19,11 +19,58 @@
     .cart-btn:hover {background:var(--btn-hover);}
     .grid {display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:16px;}
     .card {background:var(--card); border-radius:var(--radius); padding:14px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px; text-align:center; align-items:center;}
-    .emoji-box {aspect-ratio:1/1; border-radius:14px; background:#1e2235; display:flex; justify-content:center; align-items:center; width:100%; overflow:hidden; position:relative;}
-    .emoji-box img {max-width:80%; max-height:80%;}
-    .anim-box {position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none;}
+    .emoji-box {
+      aspect-ratio:1/1;
+      border-radius:14px;
+      background:#1e2235;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      width:100%;
+      overflow:hidden;
+      position:relative;
+    }
+    .emoji-box img {
+      max-width:80%;
+      max-height:80%;
+      display:block;
+      margin:auto;
+    }
+    .anim-box {
+      position:absolute;
+      top:0; left:0; width:100%; height:100%;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      pointer-events:none;
+    }
+    .anim-box svg {
+      width:80% !important;
+      height:80% !important;
+    }
     .name {font-size:15px; font-weight:600;}
     .btn {margin-top:8px; padding:10px 12px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow);}
+    /* Плавающая кнопка корзины */
+    .floating-cart {
+      position:fixed;
+      bottom:20px;
+      right:20px;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      color:#fff;
+      border:none;
+      border-radius:50%;
+      width:60px;
+      height:60px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      font-size:26px;
+      font-weight:700;
+      box-shadow:var(--shadow);
+      cursor:pointer;
+      z-index:999;
+    }
+    .floating-cart:hover {opacity:0.9;}
   </style>
 </head>
 <body>
@@ -35,6 +82,9 @@
   <main class="wrap">
     <div class="grid" id="grid"></div>
   </main>
+
+  <!-- Плавающая кнопка корзины -->
+  <a href="cart.html" class="floating-cart">🛒</a>
 
   <script>
     const items = [
@@ -85,14 +135,8 @@
         const img=box.querySelector("img");
         const animBox=box.querySelector(".anim-box");
 
-        // снимаем старые события чтобы не плодились
-        box.replaceWith(box.cloneNode(true));
-        const newBox=document.getElementById("box-"+item.id);
-        const newImg=newBox.querySelector("img");
-        const newAnimBox=newBox.querySelector(".anim-box");
-
         ["mouseenter","click","touchstart"].forEach(ev=>{
-          newBox.addEventListener(ev,()=>playAnim(newImg,newAnimBox,item));
+          box.addEventListener(ev,()=>playAnim(img,animBox,item));
         });
       });
     }
@@ -102,13 +146,18 @@
       animBox.dataset.playing="true";
 
       img.style.display="none";
-      animBox.innerHTML=""; // очищаем на всякий случай
+      animBox.innerHTML="";
       const anim=lottie.loadAnimation({
         container:animBox,
         renderer:"svg",
         loop:false,
         autoplay:true,
         path:item.id+".json"
+      });
+
+      anim.addEventListener("DOMLoaded",()=>{
+        const svg=animBox.querySelector("svg");
+        if(svg){ svg.style.width="80%"; svg.style.height="80%"; }
       });
 
       anim.addEventListener("complete",()=>{
