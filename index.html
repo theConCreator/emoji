@@ -15,7 +15,10 @@ body {margin:0; font-family:sans-serif; background:var(--bg); color:var(--text);
 header{display:flex; justify-content:space-between; align-items:center; padding:16px; background:var(--card); border-radius:var(--radius); margin-bottom:20px;}
 .cart-btn{color:var(--text); text-decoration:none; padding:10px 14px; border-radius:999px; background:var(--btn); font-weight:700;}
 .cart-btn:hover{background:var(--btn-hover);}
-.grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px;}
+.grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:16px;}
+@media (max-width:480px) {
+  .grid {grid-template-columns:1fr;} /* одна карточка на очень маленьких экранах */
+}
 .card{background:var(--card); border-radius:var(--radius); padding:14px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px; text-align:center;}
 .emoji-box{aspect-ratio:1/1; border-radius:14px; display:grid; place-items:center; border:1px dashed rgba(255,255,255,0.08); cursor:pointer; overflow:hidden;}
 .name{font-size:16px; font-weight:600; margin-top:5px;}
@@ -51,7 +54,7 @@ const grid = document.getElementById("grid");
 const animations = {};
 
 function getCart(){return JSON.parse(localStorage.getItem("cart")||"[]");}
-function setCart(c){localStorage.setItem("cart",JSON.stringify(c));}
+function setCart(c){localStorage.setItem("cart",JSON.stringify(c)); render();}
 
 function toggleCart(item){
   let cart=getCart();
@@ -59,7 +62,6 @@ function toggleCart(item){
   if(exists){cart=cart.filter(c=>c.item.id!==item.id);}
   else {cart.push({item,price:PRICE});}
   setCart(cart);
-  render();
 }
 
 function loadAnimations(){
@@ -70,6 +72,7 @@ function loadAnimations(){
     container.style.height = "100%";
     container.style.maxWidth = "150px";
     container.style.maxHeight = "150px";
+
     animations[item.id] = lottie.loadAnimation({
       container: container,
       renderer: 'svg',
@@ -78,7 +81,7 @@ function loadAnimations(){
       path: item.id+".json"
     });
     animations[item.id].addEventListener('DOMLoaded', ()=>{
-      animations[item.id].goToAndStop(0,true);
+      animations[item.id].goToAndStop(0,true); // Показываем первый кадр сразу
     });
   });
 }
@@ -105,6 +108,7 @@ function render(){
       </div>
     `;
   }).join('');
+
   items.forEach(item=>{
     const box = document.getElementById("box-"+item.id);
     if(!box) return;
