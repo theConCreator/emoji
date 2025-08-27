@@ -2,111 +2,143 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
+  <title>ConEmojis</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Emoji Store</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.9.6/lottie.min.js"></script>
+
+  <!-- Lottie -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
       margin: 0;
-      padding: 0;
+      font-family: Arial, sans-serif;
+      background: #f2f2f7;
+      color: #222;
     }
+
     header {
-      background: #4A90E2;
-      color: white;
-      text-align: center;
+      background: #111;
+      color: #fff;
       padding: 1rem;
-      font-size: 1.4rem;
+      text-align: center;
+      font-size: 1.3rem;
       font-weight: bold;
-      position: sticky;
-      top: 0;
-      z-index: 10;
     }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 1rem;
+    }
+
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 15px;
-      padding: 15px;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
     }
+
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
     .card {
-      background: white;
-      border-radius: 15px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      padding: 15px;
+      background: #fff;
+      border-radius: 14px;
+      padding: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
       text-align: center;
-      transition: transform 0.2s ease;
-      cursor: pointer;
+      transition: transform 0.2s;
     }
+
     .card:hover {
       transform: translateY(-4px);
     }
+
     .emoji-box {
       width: 100px;
       height: 100px;
-      margin: 0 auto 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      margin: auto;
       position: relative;
     }
-    .emoji-box img {
-      max-width: 100%;
-      max-height: 100%;
+
+    .emoji-box img, 
+    .emoji-box .anim {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0; left: 0;
     }
-    .card h3 {
-      margin: 0;
-      font-size: 1.1rem;
-      color: #333;
+
+    h3 {
+      margin: 0.6rem 0 0.2rem 0;
+      font-size: 1rem;
     }
+
     .price {
-      margin: 5px 0 10px;
-      font-weight: bold;
-      color: #4A90E2;
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 0.6rem;
     }
+
     .btn {
-      display: inline-block;
-      padding: 8px 14px;
-      background: #4A90E2;
-      color: white;
+      background: #007bff;
+      color: #fff;
       border: none;
+      padding: 0.5rem 1rem;
       border-radius: 8px;
       cursor: pointer;
-      transition: background 0.3s;
-      text-decoration: none;
       font-size: 0.9rem;
+      transition: background 0.2s;
     }
+
     .btn:hover {
-      background: #357ABD;
+      background: #0056b3;
     }
+
     .cart-link {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #FF6B6B;
-      padding: 12px 18px;
-      border-radius: 25px;
+      display: block;
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .cart-link a {
+      background: #28a745;
       color: white;
+      padding: 0.7rem 1.4rem;
+      border-radius: 10px;
       text-decoration: none;
       font-weight: bold;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+
+    .cart-link a:hover {
+      background: #1e7e34;
     }
   </style>
 </head>
 <body>
-  <header>🌟 Магазин Premium Эмодзи</header>
+  <header>ConEmojis – выбери свои эмодзи</header>
 
-  <main class="grid" id="emojiGrid">
-    <!-- карточки вставятся скриптом -->
-  </main>
+  <div class="container">
+    <div class="grid" id="emojiGrid"></div>
 
-  <a href="cart.html" class="cart-link">🛒 Корзина</a>
+    <div class="cart-link">
+      <a href="cart.html">Перейти в корзину</a>
+    </div>
+  </div>
 
   <script>
     const items = [
-      {id: "emoji1", name: "Смайлик", price: 0.8},
-      {id: "emoji2", name: "Сердце", price: 0.8},
-      {id: "emoji3", name: "Звезда", price: 0.8}
+      {id: "smile", name: "Смайлик", price: 0.8},
+      {id: "heart", name: "Сердце", price: 0.8},
+      {id: "star", name: "Звезда", price: 0.8},
+      {id: "fire", name: "Огонь", price: 0.8},
+      {id: "cool", name: "Очки", price: 0.8},
+      {id: "cry", name: "Слёзы", price: 0.8},
+      {id: "love", name: "Влюблённый", price: 0.8},
+      {id: "angry", name: "Злой", price: 0.8},
+      {id: "party", name: "Праздник", price: 0.8}
     ];
 
     const grid = document.getElementById("emojiGrid");
@@ -118,6 +150,7 @@
       card.innerHTML = `
         <div class="emoji-box" id="box-${item.id}">
           <img src="${item.id}.png" alt="${item.name}">
+          <div class="anim" style="display:none;"></div>
         </div>
         <h3>${item.name}</h3>
         <div class="price">${item.price}$</div>
@@ -138,21 +171,23 @@
       items.forEach(item => {
         const box = document.getElementById("box-"+item.id);
         const img = box.querySelector("img");
+        const animBox = box.querySelector(".anim");
 
-        ["click","mouseenter","touchstart"].forEach(ev => {
-          box.addEventListener(ev, () => playAnim(box, item, img));
+        ["click","touchstart"].forEach(ev => {
+          box.addEventListener(ev, () => playAnim(img, animBox, item));
         });
       });
     }
 
-    function playAnim(box, item, img) {
-      if (box.dataset.animating === "true") return;
-      box.dataset.animating = "true";
+    function playAnim(img, animBox, item) {
+      if (animBox.dataset.animating === "true") return;
+      animBox.dataset.animating = "true";
 
       img.style.display = "none";
+      animBox.style.display = "block";
 
       const anim = lottie.loadAnimation({
-        container: box,
+        container: animBox,
         renderer: "svg",
         loop: false,
         autoplay: true,
@@ -161,8 +196,10 @@
 
       anim.addEventListener("complete", () => {
         anim.destroy();
+        animBox.innerHTML = "";
+        animBox.style.display = "none";
         img.style.display = "block";
-        box.dataset.animating = "false";
+        animBox.dataset.animating = "false";
       });
     }
 
