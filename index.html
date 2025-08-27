@@ -24,29 +24,15 @@ h1{font-size:20px;}
 }
 .card:hover{transform: scale(1.05); box-shadow: 0 15px 35px rgba(0,0,0,0.35);}
 .card.added{border:2px solid var(--accent);}
-.card.added .btn{background: var(--accent-2);}
-.card.hit{border:2px solid orange; overflow: visible;}
-
-/* Ленточка "ХИТ" внутри карточки */
-.card.hit::before {
-  content: "ХИТ";
+.card.hit{border:2px solid orange;}
+.ribbon {
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 70px;
-  height: 24px;
-  background: orange;
-  color: #fff;
-  font-weight: 700;
-  text-align: center;
-  line-height: 24px;
-  font-size: 12px;
-  transform: rotate(45deg) translate(5px, -5px);
-  transform-origin: top right;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-  z-index: 10;
+  top: -10px; right: -35px;
+  width: 120px; height: 30px;
+  background: orange; color: #fff; font-weight: bold; text-align: center;
+  line-height: 30px; transform: rotate(45deg); z-index:10;
+  box-shadow:0 2px 5px rgba(0,0,0,0.3);
 }
-
 .emoji-box{
   aspect-ratio:1/1; border-radius:14px; background:#1e2235;
   display:flex; justify-content:center; align-items:center; width:100%; overflow:hidden; position:relative;
@@ -115,6 +101,7 @@ function render(){
     const hitClass = hits.includes(item.id) ? "hit" : "";
     return `
       <div class="card ${hitClass}">
+        ${hitClass?'<div class="ribbon">ХИТ</div>':''}
         <div class="emoji-box" id="box-${item.id}">
           <img src="${item.id}.png" alt="${item.name}">
           <div class="anim-box" id="anim-${item.id}"></div>
