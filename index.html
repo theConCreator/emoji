@@ -43,6 +43,7 @@
       justify-content:center;
       align-items:center;
       pointer-events:none;
+      display:none; /* скрываем по умолчанию */
     }
     .anim-box svg {
       width:80% !important;
@@ -69,6 +70,7 @@
       box-shadow:var(--shadow);
       cursor:pointer;
       z-index:999;
+      text-decoration:none; /* убрали подчёркивание */
     }
     .floating-cart:hover {opacity:0.9;}
   </style>
@@ -97,6 +99,7 @@
     ];
     const PRICE = 0.8;
     const grid = document.getElementById("grid");
+    const animations = {}; // будем хранить предзагруженные анимации
 
     function getCart(){ return JSON.parse(localStorage.getItem("cart")||"[]"); }
     function saveCart(cart){ localStorage.setItem("cart", JSON.stringify(cart)); }
@@ -117,7 +120,7 @@
           <div class="card">
             <div class="emoji-box" id="box-${item.id}">
               <img src="${item.id}.png" alt="${item.name}">
-              <div class="anim-box"></div>
+              <div class="anim-box" id="anim-${item.id}"></div>
             </div>
             <div class="name">${item.name}</div>
             <button class="btn" onclick='toggleCart(${JSON.stringify(item)})'>
@@ -126,45 +129,50 @@
           </div>
         `;
       }).join('');
+
+      preloadAnimations();
       addAnimations();
+    }
+
+    function preloadAnimations(){
+      items.forEach(item=>{
+        const animBox=document.getElementById(`anim-${item.id}`);
+        if(!animations[item.id]){
+          animations[item.id] = lottie.loadAnimation({
+            container: animBox,
+            renderer: "svg",
+            loop:false,
+            autoplay:false,
+            path: item.id+".json"
+          });
+          animBox.style.display="none"; // скрываем
+        }
+      });
     }
 
     function addAnimations(){
       items.forEach(item=>{
         const box=document.getElementById("box-"+item.id);
         const img=box.querySelector("img");
-        const animBox=box.querySelector(".anim-box");
+        const animBox=document.getElementById(`anim-${item.id}`);
+        const anim = animations[item.id];
 
         ["mouseenter","click","touchstart"].forEach(ev=>{
-          box.addEventListener(ev,()=>playAnim(img,animBox,item));
+          box.addEventListener(ev,()=>{
+            if(animBox.dataset.playing==="true") return;
+            animBox.dataset.playing="true";
+
+            img.style.display="none";
+            animBox.style.display="flex";
+            anim.goToAndPlay(0,true);
+
+            anim.addEventListener("complete",()=>{
+              animBox.style.display="none";
+              img.style.display="block";
+              animBox.dataset.playing="false";
+            }, {once:true});
+          });
         });
-      });
-    }
-
-    function playAnim(img,animBox,item){
-      if(animBox.dataset.playing==="true") return;
-      animBox.dataset.playing="true";
-
-      img.style.display="none";
-      animBox.innerHTML="";
-      const anim=lottie.loadAnimation({
-        container:animBox,
-        renderer:"svg",
-        loop:false,
-        autoplay:true,
-        path:item.id+".json"
-      });
-
-      anim.addEventListener("DOMLoaded",()=>{
-        const svg=animBox.querySelector("svg");
-        if(svg){ svg.style.width="80%"; svg.style.height="80%"; }
-      });
-
-      anim.addEventListener("complete",()=>{
-        anim.destroy();
-        animBox.innerHTML="";
-        img.style.display="block";
-        animBox.dataset.playing="false";
       });
     }
 
