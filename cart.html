@@ -21,12 +21,12 @@ h1{font-size:20px;}
 .card{
   background:var(--card); border-radius:var(--radius); padding:14px;
   box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px;
-  text-align:center; align-items:center; position:relative;
+  text-align:center; align-items:center; position:relative; overflow:hidden;
 }
 .card.hit{border:2px solid orange;}
 .card.hit::before{
-  content:"ХИТ"; position:absolute; top:8px; right:8px;
-  background:orange; color:#fff; font-weight:700; padding:2px 8px;
+  content:"ХИТ"; position:absolute; top:10px; right:-5px;
+  background:orange; color:#fff; font-weight:700; padding:2px 10px;
   font-size:12px; border-radius:2px; transform:rotate(45deg);
   transform-origin: top right; box-shadow:0 2px 5px rgba(0,0,0,0.3); z-index:10;
 }
