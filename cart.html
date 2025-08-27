@@ -25,8 +25,8 @@ h1{font-size:20px;}
 }
 .card.hit{border:2px solid orange;}
 .card.hit::before{
-  content:"ХИТ"; position:absolute; top:10px; right:-5px;
-  background:orange; color:#fff; font-weight:700; padding:2px 10px;
+  content:"ХИТ"; position:absolute; top:0; right:-10px;
+  background:orange; color:#fff; font-weight:700; padding:2px 12px;
   font-size:12px; border-radius:2px; transform:rotate(45deg);
   transform-origin: top right; box-shadow:0 2px 5px rgba(0,0,0,0.3); z-index:10;
 }
@@ -38,7 +38,7 @@ h1{font-size:20px;}
 .anim-box{position:absolute; top:0; left:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; pointer-events:none; display:none;}
 .anim-box svg{width:80% !important; height:80% !important;}
 .name{font-size:15px; font-weight:600;}
-input, select{padding:6px; border-radius:8px; border:none; margin-top:6px; width:90%;}
+input{padding:6px; border-radius:8px; border:none; margin-top:6px; width:90%;}
 .order-section{margin-top:20px; display:flex; flex-direction:column; gap:10px;}
 .note-logo{color:#e8ebff; background:#2a2f45; padding:10px; border-radius:12px; text-align:center; font-weight:700; box-shadow:var(--shadow);}
 .btn{margin-top:8px; padding:10px 12px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow);}
@@ -142,15 +142,18 @@ document.getElementById("sendOrder").addEventListener("click",()=>{
   const cart=getCart();
   if(cart.length===0){ alert("Корзина пуста"); return; }
   const username=document.getElementById("username").value.trim();
-  if(!username){ alert("Введите ник"); return; }
+  if(!username){ alert("Введите Ник"); return; }
   const mainColor=document.getElementById("mainColor").value;
   const secondaryColor=document.getElementById("secondaryColor").value;
 
-  let text=`Заказ от ${username}\nЦвета: основной ${mainColor}, второстепенный ${secondaryColor}\nЭмодзи:\n`;
-  cart.forEach(c=>text+=`- ${c.item.name}\n`);
-  text+="Логотип: отправьте в Telegram вместе с заказом.\n";
+  let msg = `Новый заказ от @${username}:\n\n`;
+  cart.forEach(c=>{
+    msg += `Эмодзи: ${c.item.name}\nЦена: $${c.price.toFixed(2)}\n`;
+  });
+  msg += `Основной цвет: ${mainColor}\nВторостепенный цвет: ${secondaryColor}\n`;
+  msg += `Логотип: нужно отправить в Telegram вместе с заказом`;
 
-  const url=`https://t.me/theConCreator?text=${encodeURIComponent(text)}`;
+  const url = `https://t.me/theConCreator?text=${encodeURIComponent(msg)}`;
   window.open(url,"_blank");
 });
 
