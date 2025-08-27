@@ -25,23 +25,28 @@ h1{font-size:20px;}
 .card:hover{transform: scale(1.05); box-shadow: 0 15px 35px rgba(0,0,0,0.35);}
 .card.added{border:2px solid var(--accent);}
 .card.added .btn{background: var(--accent-2);}
-.card.hit{border:2px solid orange;}
+.card.hit{border:2px solid orange; overflow: visible;}
+
+/* Ленточка "ХИТ" внутри карточки */
 .card.hit::before {
   content: "ХИТ";
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 0;
+  right: 0;
+  width: 70px;
+  height: 24px;
   background: orange;
   color: #fff;
   font-weight: 700;
-  padding: 2px 8px;
+  text-align: center;
+  line-height: 24px;
   font-size: 12px;
-  border-radius: 2px;
-  transform: rotate(45deg);
+  transform: rotate(45deg) translate(5px, -5px);
   transform-origin: top right;
   box-shadow: 0 2px 5px rgba(0,0,0,0.3);
   z-index: 10;
 }
+
 .emoji-box{
   aspect-ratio:1/1; border-radius:14px; background:#1e2235;
   display:flex; justify-content:center; align-items:center; width:100%; overflow:hidden; position:relative;
