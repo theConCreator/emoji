@@ -1,107 +1,180 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Корзина</title>
-  <style>
-    :root {
-      --bg:#0f1220; --card:#171a2a; --text:#e8ebff; --muted:#9aa3c7;
-      --accent:#6ea8ff; --accent-2:#7b6cff; --btn:#2a2f45; --btn-hover:#343a55;
-      --shadow:0 10px 30px rgba(0,0,0,0.25); --radius:18px;
-    }
-    body {margin:0; font-family:sans-serif; background:var(--bg); color:var(--text);}
-    .wrap {max-width:800px; margin:0 auto; padding:16px;}
-    header {display:flex; justify-content:space-between; align-items:center; padding:16px;}
-    h1 {font-size:20px;}
-    .cart-item {background:var(--card); padding:12px; border-radius:var(--radius); margin-bottom:10px; display:flex; align-items:center; gap:10px; box-shadow:var(--shadow);}
-    .cart-item img {width:48px; height:48px;}
-    .remove-btn {background:none; border:none; color:#ff6b6b; font-weight:700; cursor:pointer;}
-    .form {background:var(--card); padding:16px; border-radius:var(--radius); margin-top:20px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:12px;}
-    .form input[type="text"], .form input[type="color"] {padding:8px; border-radius:8px; border:none; background:#1e2235; color:var(--text);}
-    .send-btn {padding:12px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow);}
-    .logo-info {padding:10px; border-radius:8px; background:#2a2f45; text-align:center; font-size:14px; color:var(--muted);}
-    .summary {margin-top:10px; font-weight:600;}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Корзина</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.10.2/lottie.min.js"></script>
+<style>
+:root {
+  --bg:#0f1220; --card:#171a2a; --text:#e8ebff; --muted:#9aa3c7;
+  --accent:#6ea8ff; --accent-2:#7b6cff; --btn:#2a2f45; --btn-hover:#343a55;
+  --shadow:0 10px 30px rgba(0,0,0,0.25); --radius:18px;
+}
+body{margin:0; font-family:sans-serif; background:var(--bg); color:var(--text);}
+.wrap{max-width:1000px; margin:0 auto; padding:16px;}
+header{display:flex; justify-content:space-between; align-items:center; padding:16px;}
+h1{font-size:20px;}
+.grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:16px; margin-top:16px;}
+.card{
+  background:var(--card); border-radius:var(--radius); padding:14px;
+  box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px;
+  text-align:center; align-items:center; position:relative;
+}
+.card.hit{border:2px solid orange;}
+.card.hit::before{
+  content:"ХИТ"; position:absolute; top:0; right:0;
+  background:orange; color:#fff; font-weight:700; padding:2px 6px; border-bottom-left-radius:8px; font-size:12px;
+}
+.emoji-box{
+  aspect-ratio:1/1; border-radius:14px; background:#1e2235;
+  display:flex; justify-content:center; align-items:center; width:100%; overflow:hidden; position:relative;
+}
+.emoji-box img{max-width:80%; max-height:80%; display:block; margin:auto; transition: transform 0.3s ease;}
+.anim-box{position:absolute; top:0; left:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; pointer-events:none; display:none;}
+.anim-box svg{width:80% !important; height:80% !important;}
+.name{font-size:15px; font-weight:600;}
+.btn{margin-top:8px; padding:10px 12px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow);}
+input, select{padding:6px; border-radius:8px; border:none; margin-top:6px; width:90%;}
+textarea{padding:6px; border-radius:8px; border:none; margin-top:6px; width:90%; color:#000;}
+.order-section{margin-top:20px; display:flex; flex-direction:column; gap:10px;}
+</style>
 </head>
 <body>
-  <header class="wrap">
-    <h1>Ваша корзина</h1>
-    <a class="send-btn" href="index.html">⬅ Назад</a>
-  </header>
+<header class="wrap">
+  <h1>Корзина</h1>
+  <a class="cart-btn" href="index.html">← Назад</a>
+</header>
 
-  <main class="wrap">
-    <div id="cart-list"></div>
+<main class="wrap">
+  <div class="grid" id="grid"></div>
 
-    <div class="form">
-      <label>Ник</label>
-      <input type="text" id="nickname" placeholder="Ник">
+  <div class="order-section">
+    <input type="text" id="username" placeholder="Ник">
+    <label>Основной цвет</label>
+    <input type="color" id="mainColor" value="#000000">
+    <label>Второстепенный цвет</label>
+    <input type="color" id="secondaryColor" value="#FFFFFF">
+    <button class="btn" id="logoBtn">Отправлю логотип в Telegram</button>
+    <button class="btn" id="sendOrder">Оформить заказ и открыть Telegram</button>
+  </div>
+</main>
 
-      <label>Основной цвет</label>
-      <input type="color" id="colorMain" value="#000000">
+<script>
+const items = [
+  {id:"Flag1", name:"Флаг"},
+  {id:"Phone", name:"Телефон"},
+  {id:"Card", name:"Карточка"},
+  {id:"Case", name:"Кейс"},
+  {id:"HeartArms", name:"Сердце"},
+  {id:"TopSign", name:"ТОП"},
+];
+const hits = ["HeartArms","TopSign"];
+const PRICE = 0.8;
+const grid = document.getElementById("grid");
+const animations = {};
+let sendLogoNote = false;
 
-      <label>Второстепенный цвет</label>
-      <input type="color" id="colorSecondary" value="#ffffff">
+function getCart(){ return JSON.parse(localStorage.getItem("cart")||"[]"); }
+function saveCart(cart){ localStorage.setItem("cart", JSON.stringify(cart)); }
 
-      <div class="logo-info">Отправьте логотип в Telegram при оформлении заказа</div>
-      <div class="summary" id="summary"></div>
+function render(){
+  const cart=getCart();
+  const sorted = [...cart].sort((a,b)=>{
+    const aHit = hits.includes(a.item.id) ? 1:0;
+    const bHit = hits.includes(b.item.id) ? 1:0;
+    return bHit - aHit;
+  });
 
-      <button class="send-btn" onclick="sendOrder()">Оформить заказ и открыть Telegram</button>
-    </div>
-  </main>
-
-  <script>
-    const PRICE=0.8;
-
-    function getCart(){ return JSON.parse(localStorage.getItem("cart")||"[]"); }
-    function saveCart(cart){ localStorage.setItem("cart", JSON.stringify(cart)); }
-
-    function removeItem(id){
-      let cart=getCart().filter(c=>c.item.id!==id);
-      saveCart(cart); renderCart();
-    }
-
-    function renderCart(){
-      const list=document.getElementById("cart-list");
-      const cart=getCart();
-      const summary=document.getElementById("summary");
-      if(cart.length===0){
-        list.innerHTML="<p>Корзина пуста</p>";
-        summary.innerHTML="";
-        return;
-      }
-      list.innerHTML=cart.map(c=>`
-        <div class="cart-item">
-          <img src="${c.item.id}.png" alt="${c.item.name}">
-          <div>${c.item.name}</div>
-          <button class="remove-btn" onclick="removeItem('${c.item.id}')">✖</button>
+  grid.innerHTML = sorted.map(c=>{
+    const item=c.item;
+    const hitClass = hits.includes(item.id) ? "hit" : "";
+    return `
+      <div class="card ${hitClass}">
+        <div class="emoji-box" id="box-${item.id}">
+          <img src="${item.id}.png" alt="${item.name}">
+          <div class="anim-box" id="anim-${item.id}"></div>
         </div>
-      `).join('');
-      const total=cart.length*PRICE;
-      summary.innerHTML="Итого: "+cart.length+" шт × "+PRICE+"$ = "+total.toFixed(2)+"$";
-    }
+        <div class="name">${item.name}</div>
+        <div>Цена: $${c.price.toFixed(2)}</div>
+      </div>
+    `;
+  }).join('');
 
-    function sendOrder(){
-      const cart=getCart();
-      if(cart.length===0){alert("Корзина пуста"); return;}
-      const nick=document.getElementById("nickname").value.trim();
-      if(!nick){alert("Введите ник"); return;}
-      const colorMain=document.getElementById("colorMain").value;
-      const colorSecondary=document.getElementById("colorSecondary").value;
-      const total=cart.length*PRICE;
-      let text="🛒 Новый заказ:\n";
-      text+="Ник: "+nick+"\n";
-      text+="Эмодзи: "+cart.map(c=>c.item.name).join(", ")+"\n";
-      text+="Основной цвет: "+colorMain+"\n";
-      text+="Второстепенный цвет: "+colorSecondary+"\n";
-      text+="Итого: "+cart.length+" шт × "+PRICE+"$ = "+total.toFixed(2)+"$\n";
-      text+="Логотип будет отправлен в Telegram";
-      // 👇 замени USERNAME на свой ник без @
-      const url="https://t.me/theConCreator?text="+encodeURIComponent(text);
-      window.open(url,"_blank");
-    }
+  preloadAnimations();
+  addAnimations();
+}
 
-    renderCart();
-  </script>
+function preloadAnimations(){
+  getCart().forEach(c=>{
+    const item=c.item;
+    const animBox=document.getElementById(`anim-${item.id}`);
+    if(!animations[item.id]){
+      animations[item.id] = lottie.loadAnimation({
+        container: animBox,
+        renderer: "svg",
+        loop:false,
+        autoplay:false,
+        path: item.id+".json"
+      });
+      animBox.style.display="none";
+    }
+  });
+}
+
+function addAnimations(){
+  getCart().forEach(c=>{
+    const item=c.item;
+    const box=document.getElementById("box-"+item.id);
+    const img=box.querySelector("img");
+    const animBox=document.getElementById(`anim-${item.id}`);
+    const anim = animations[item.id];
+
+    ["mouseenter","click","touchstart"].forEach(ev=>{
+      box.addEventListener(ev,()=>{
+        if(animBox.dataset.playing==="true") return;
+        animBox.dataset.playing="true";
+
+        img.style.display="none";
+        animBox.style.display="flex";
+        anim.goToAndPlay(0,true);
+
+        anim.addEventListener("complete",()=>{
+          animBox.style.display="none";
+          img.style.display="block";
+          img.style.transform="none";
+          animBox.dataset.playing="false";
+        }, {once:true});
+      });
+    });
+  });
+}
+
+document.getElementById("logoBtn").addEventListener("click",()=>{
+  sendLogoNote = !sendLogoNote;
+  if(sendLogoNote) document.getElementById("logoBtn").style.background="orange";
+  else document.getElementById("logoBtn").style.background="linear-gradient(135deg,var(--accent),var(--accent-2))";
+});
+
+document.getElementById("sendOrder").addEventListener("click",()=>{
+  const cart = getCart();
+  if(cart.length===0){ alert("Корзина пуста"); return; }
+  const username = document.getElementById("username").value.trim();
+  if(!username){ alert("Введите ник"); return; }
+  const mainColor = document.getElementById("mainColor").value;
+  const secondaryColor = document.getElementById("secondaryColor").value;
+
+  let text = `Заказ от ${username}\nЦвета: основной ${mainColor}, второстепенный ${secondaryColor}\nЭмодзи:\n`;
+  cart.forEach(c=>{
+    text += `- ${c.item.name}\n`;
+  });
+  if(sendLogoNote) text += "Логотип: отправьте в Telegram.\n";
+
+  const url = `https://t.me/theConCreator?text=${encodeURIComponent(text)}`;
+  window.open(url,"_blank");
+});
+
+render();
+</script>
 </body>
 </html>
