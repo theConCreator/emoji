@@ -18,13 +18,10 @@
     .cart-item img {width:48px; height:48px;}
     .remove-btn {background:none; border:none; color:#ff6b6b; font-weight:700; cursor:pointer;}
     .form {background:var(--card); padding:16px; border-radius:var(--radius); margin-top:20px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:12px;}
-    .form label {font-weight:600;}
-    .form input[type="text"], .form input[type="color"] {
-      padding:8px; border-radius:8px; border:none; width:100%;
-      background:#1e2235; color:var(--text);
-    }
+    .form input[type="text"], .form input[type="color"] {padding:8px; border-radius:8px; border:none; background:#1e2235; color:var(--text);}
     .send-btn {padding:12px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow);}
     .logo-info {padding:10px; border-radius:8px; background:#2a2f45; text-align:center; font-size:14px; color:var(--muted);}
+    .summary {margin-top:10px; font-weight:600;}
   </style>
 </head>
 <body>
@@ -47,28 +44,30 @@
       <input type="color" id="colorSecondary" value="#ffffff">
 
       <div class="logo-info">Отправьте логотип в Telegram при оформлении заказа</div>
+      <div class="summary" id="summary"></div>
 
       <button class="send-btn" onclick="sendOrder()">Оформить заказ и открыть Telegram</button>
     </div>
   </main>
 
   <script>
-    function getCart() {
-      return JSON.parse(localStorage.getItem("cart")||"[]");
+    const PRICE=0.8;
+
+    function getCart(){ return JSON.parse(localStorage.getItem("cart")||"[]"); }
+    function saveCart(cart){ localStorage.setItem("cart", JSON.stringify(cart)); }
+
+    function removeItem(id){
+      let cart=getCart().filter(c=>c.item.id!==id);
+      saveCart(cart); renderCart();
     }
-    function saveCart(cart) {
-      localStorage.setItem("cart", JSON.stringify(cart));
-    }
-    function removeItem(id) {
-      let cart = getCart().filter(c=>c.item.id!==id);
-      saveCart(cart);
-      renderCart();
-    }
-    function renderCart() {
+
+    function renderCart(){
       const list=document.getElementById("cart-list");
       const cart=getCart();
+      const summary=document.getElementById("summary");
       if(cart.length===0){
         list.innerHTML="<p>Корзина пуста</p>";
+        summary.innerHTML="";
         return;
       }
       list.innerHTML=cart.map(c=>`
@@ -78,23 +77,30 @@
           <button class="remove-btn" onclick="removeItem('${c.item.id}')">✖</button>
         </div>
       `).join('');
+      const total=cart.length*PRICE;
+      summary.innerHTML="Итого: "+cart.length+" шт × "+PRICE+"$ = "+total.toFixed(2)+"$";
     }
-    function sendOrder() {
+
+    function sendOrder(){
       const cart=getCart();
       if(cart.length===0){alert("Корзина пуста"); return;}
       const nick=document.getElementById("nickname").value.trim();
       if(!nick){alert("Введите ник"); return;}
       const colorMain=document.getElementById("colorMain").value;
       const colorSecondary=document.getElementById("colorSecondary").value;
+      const total=cart.length*PRICE;
       let text="🛒 Новый заказ:\n";
       text+="Ник: "+nick+"\n";
       text+="Эмодзи: "+cart.map(c=>c.item.name).join(", ")+"\n";
       text+="Основной цвет: "+colorMain+"\n";
       text+="Второстепенный цвет: "+colorSecondary+"\n";
+      text+="Итого: "+cart.length+" шт × "+PRICE+"$ = "+total.toFixed(2)+"$\n";
       text+="Логотип будет отправлен в Telegram";
+      // 👇 замени USERNAME на свой ник без @
       const url="https://t.me/theConCreator?text="+encodeURIComponent(text);
       window.open(url,"_blank");
     }
+
     renderCart();
   </script>
 </body>
