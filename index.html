@@ -1,50 +1,42 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Персональные Telegram эмодзи — Каталог</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<style>
-:root{
-  --bg:#0f1220; --card:#171a2a; --text:#e8ebff; --muted:#9aa3c7;
-  --accent:#6ea8ff; --accent-2:#7b6cff;
-  --radius:14px; --shadow: 0 8px 24px rgba(0,0,0,0.35);
-}
-*{box-sizing:border-box;font-family:'Inter',sans-serif;}
-body{margin:0;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;}
-.container{max-width:1100px;margin:0 auto;padding:20px;}
-.header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
-.title{font-size:20px;font-weight:700}
-.cart-pill{background:linear-gradient(90deg,var(--accent),var(--accent-2));padding:8px 12px;border-radius:999px;color:#fff;text-decoration:none;font-weight:700;display:inline-flex;align-items:center;gap:8px;box-shadow:var(--shadow)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
-.card{background:var(--card);border-radius:var(--radius);padding:12px;box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
-.preview{width:100%;aspect-ratio:1/1;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));display:grid;place-items:center;overflow:hidden;border:1px solid rgba(255,255,255,0.03)}
-.name{font-weight:600}
-.btn{width:100%;padding:9px;border-radius:9px;border:none;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;font-weight:700;cursor:pointer}
-.btn.remove{background:#ff5a5f}
-.count-badge{background:rgba(255,255,255,0.06);padding:6px 10px;border-radius:999px;color:var(--text);font-weight:700}
-.footer{margin-top:26px;color:var(--muted);text-align:center;padding:16px 0}
-.note{font-size:13px;color:var(--muted);text-align:center;margin-top:12px}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Персональные эмодзи</title>
+  <style>
+    :root {
+      --bg:#0f1220; --card:#171a2a; --text:#e8ebff;
+      --muted:#9aa3c7; --accent:#6ea8ff; --accent-2:#7b6cff;
+      --btn:#2a2f45; --btn-hover:#343a55; --shadow:0 10px 30px rgba(0,0,0,0.25);
+      --radius:18px;
+    }
+    body {margin:0; font-family:sans-serif; background:var(--bg); color:var(--text);}
+    .wrap{max-width:980px; margin:0 auto; padding:16px;}
+    header{display:flex; justify-content:space-between; align-items:center; padding:16px;}
+    .cart-btn{color:var(--text); text-decoration:none; padding:10px 14px; border-radius:999px; background:var(--btn);}
+    .cart-btn:hover{background:var(--btn-hover);}
+    .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px;}
+    .card{background:var(--card); border-radius:var(--radius); padding:14px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px; text-align:center;}
+    .emoji-box{aspect-ratio:1/1; border-radius:14px; background:linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); display:grid; place-items:center; border:1px dashed rgba(255,255,255,0.08); overflow:hidden;}
+    .emoji-box img{max-width:70%; max-height:70%;}
+    .name{font-size:15px; font-weight:600;}
+    .btn{margin-top:8px; padding:10px 12px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow);}
+  </style>
 </head>
 <body>
-<div class="container">
-  <header class="header">
-    <div class="title">Персональные Telegram эмодзи</div>
-    <a class="cart-pill" href="cart.html" id="cartLink">🛒 Корзина <span id="cartCount" class="count-badge">0</span></a>
-  </header>
+<header class="wrap">
+  <h1>Персональные Telegram эмодзи</h1>
+  <a class="cart-btn" href="cart.html">🛒 Корзина</a>
+</header>
 
-  <main>
-    <div id="grid" class="grid" aria-live="polite"></div>
-    <div class="note">Нажмите «Добавить в корзину», затем перейдите в корзину для оформления. Если анимация не загрузилась — добавьте PNG-превью с тем же именем.</div>
-  </main>
+<main class="wrap">
+  <div class="grid" id="grid"></div>
+</main>
 
-  <footer class="footer">© theConCreator</footer>
-</div>
+<footer class="wrap">© theConCreator</footer>
 
-<!-- Lottie -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.10.2/lottie.min.js"></script>
 <script>
 const items = [
   {id:"Flag1", name:"Флаг"},
@@ -55,155 +47,56 @@ const items = [
   {id:"TopSign", name:"ТОП"}
 ];
 const PRICE = 0.8;
-const grid = document.getElementById('grid');
-const cartCountEl = document.getElementById('cartCount');
+const grid = document.getElementById("grid");
 
-/* --- storage helpers --- */
-function rawCart(){ try { return JSON.parse(localStorage.getItem('cart')||'[]'); } catch(e){ return []; } }
+function getCart(){return JSON.parse(localStorage.getItem("cart")||"[]");}
+function setCart(c){localStorage.setItem("cart",JSON.stringify(c));}
 
-function normalizeEntry(e){
-  if(!e) return null;
-  // already normalized
-  if(e.id && e.name) return {id:String(e.id), name:String(e.name), price: Number(e.price||0)};
-  // older format: {item:{id,name}, price:...}
-  if(e.item){
-    const it = e.item;
-    return {id: String(it.id||it.name||'unknown'), name: String(it.name||it.id||'Unknown'), price: Number(e.price||it.price||0)};
-  }
-  // another possible shape
-  if(e[0] && typeof e[0] === 'object'){ // unlikely
-    return normalizeEntry(e[0]);
-  }
-  // fallback: try to pick first available fields
-  const keys = Object.keys(e);
-  const id = e.id || e.itemId || e.name || keys[0] || 'unknown';
-  const name = e.name || e.title || id;
-  const price = Number(e.price||0);
-  return {id:String(id), name:String(name), price: price};
-}
-
-function getCart(){
-  const raw = rawCart();
-  const normalized = raw.map(normalizeEntry).filter(Boolean);
-  // rewrite storage if some old-format entries existed
-  try { localStorage.setItem('cart', JSON.stringify(normalized)); } catch(e){}
-  return normalized;
-}
-
-function setCart(arr){ localStorage.setItem('cart', JSON.stringify(arr)); updateCartCount(); }
-
-function addToCart(item){
-  const cart = getCart();
-  if(!cart.some(c=>c.id === item.id)){
-    cart.push({id:item.id, name:item.name, price: PRICE});
-    setCart(cart);
-  }
-}
-
-function removeFromCartById(id){
-  let cart = getCart();
-  cart = cart.filter(c=>c.id !== id);
+function toggleCart(item){
+  let cart=getCart();
+  const exists=cart.find(c=>c.item.id===item.id);
+  if(exists){cart=cart.filter(c=>c.item.id!==item.id);}
+  else {cart.push({item,price:PRICE});}
   setCart(cart);
+  render();
 }
 
-function removeFromCartByIndex(idx){
-  const cart = getCart();
-  cart.splice(idx,1);
-  setCart(cart);
-}
-
-function updateCartCount(){ cartCountEl.textContent = getCart().length; }
-
-/* --- file existence checks --- */
-async function jsonExists(path){
-  try{
-    const r = await fetch(path, {method:'GET'});
-    return r.ok && (r.headers.get('content-type')||'').includes('json');
-  }catch(e){ return false; }
-}
-function imgExists(path){
-  return new Promise(resolve=>{
-    const img = new Image();
-    img.onload = ()=>resolve(true);
-    img.onerror = ()=>resolve(false);
-    img.src = path + '?_=' + Date.now();
+function playAnimation(box,item){
+  box.innerHTML="";
+  const anim = lottie.loadAnimation({
+    container: box,
+    renderer: "svg",
+    loop: false,
+    autoplay: true,
+    path: item.id+".json"
+  });
+  anim.addEventListener("complete",()=>{
+    box.innerHTML=`<img src="${item.id}.png" alt="${item.name}">`;
   });
 }
 
-/* --- render single card --- */
-async function createCard(item){
-  const card = document.createElement('div'); card.className='card';
-  const preview = document.createElement('div'); preview.className='preview'; card.appendChild(preview);
-  const name = document.createElement('div'); name.className='name'; name.textContent = item.name; card.appendChild(name);
-  const btn = document.createElement('button'); btn.className='btn'; card.appendChild(btn);
-
-  function updateBtn(){
-    const inCart = getCart().some(c=>c.id === item.id);
-    btn.textContent = inCart ? 'Убрать из корзины' : `Добавить в корзину — $${PRICE.toFixed(2)}`;
-    btn.classList.toggle('remove', inCart);
-  }
-
-  btn.addEventListener('click', ()=>{
-    const inCartNow = getCart().some(c=>c.id === item.id);
-    if(inCartNow) removeFromCartById(item.id); else addToCart(item);
-    updateBtn();
-    flash(inCartNow ? 'Удалено из корзины' : 'Добавлено в корзину');
+function render(){
+  const cart=getCart();
+  grid.innerHTML=items.map(item=>{
+    const inCart=cart.find(c=>c.item.id===item.id);
+    return `
+      <div class="card">
+        <div class="emoji-box" id="box-${item.id}">
+          <img src="${item.id}.png" alt="${item.name}">
+        </div>
+        <div class="name">${item.name}</div>
+        <button class="btn" onclick='toggleCart(${JSON.stringify(item)})'>
+          ${inCart?"Убрать из корзины":"Добавить в корзину"}
+        </button>
+      </div>
+    `;
+  }).join('');
+  items.forEach(item=>{
+    const box=document.getElementById("box-"+item.id);
+    box.onclick=()=>playAnimation(box,item);
   });
-
-  updateBtn();
-
-  // try Lottie, else PNG, else placeholder
-  const jsonPath = `${item.id}.json`;
-  const pngPath = `${item.id}.png`;
-  if(await jsonExists(jsonPath)){
-    try{
-      preview.innerHTML = ''; // container for lottie
-      const animCont = document.createElement('div');
-      animCont.style.width = '90%'; animCont.style.height = '90%';
-      preview.appendChild(animCont);
-      lottie.loadAnimation({container:animCont, renderer:'svg', loop:true, autoplay:true, path:jsonPath});
-    }catch(e){
-      if(await imgExists(pngPath)){ preview.innerHTML=''; const img=document.createElement('img'); img.src=pngPath; img.alt=item.name; img.style.maxWidth='80%'; img.style.maxHeight='80%'; preview.appendChild(img); }
-      else preview.innerHTML = placeholderSVG(item.name);
-    }
-  } else if(await imgExists(pngPath)){
-    preview.innerHTML=''; const img=document.createElement('img'); img.src=pngPath; img.alt=item.name; img.style.maxWidth='80%'; img.style.maxHeight='80%'; preview.appendChild(img);
-  } else {
-    preview.innerHTML = placeholderSVG(item.name);
-  }
-
-  return card;
 }
-
-function placeholderSVG(text){
-  return `<svg width="70%" height="70%" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect rx="12" width="100" height="100" fill="#22263a"/><text x="50" y="55" font-size="10" fill="#9aa3c7" text-anchor="middle">${escapeHtml(text)}</text></svg>`;
-}
-
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
-
-function flash(msg){
-  const el=document.createElement('div'); el.textContent=msg;
-  Object.assign(el.style,{position:'fixed',right:'18px',bottom:'18px',background:'rgba(0,0,0,0.7)',color:'#fff',padding:'10px 14px',borderRadius:'10px',zIndex:9999,boxShadow:'0 8px 20px rgba(0,0,0,0.4)'});
-  document.body.appendChild(el); setTimeout(()=>el.style.opacity='0',1200); setTimeout(()=>el.remove(),1700);
-}
-
-/* --- render grid --- */
-async function renderGrid(){
-  grid.innerHTML='';
-  for(const item of items){
-    const card = await createCard(item);
-    grid.appendChild(card);
-  }
-  updateCartCount();
-}
-
-// initial normalize (fix old undefined entries)
-(function normalizeStorageOnLoad(){
-  const normalized = getCart(); // this rewrites storage with normalized entries
-  setCart(normalized);
-})();
-
-renderGrid();
+render();
 </script>
 </body>
 </html>

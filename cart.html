@@ -1,145 +1,80 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Корзина</title>
-<style>
-:root{
-  --bg:#0f1220; --card:#171a2a; --text:#e8ebff; --muted:#9aa3c7;
-  --accent:#6ea8ff; --accent-2:#7b6cff; --btn:#2a2f45; --btn-hover:#343a55;
-  --shadow:0 10px 30px rgba(0,0,0,0.25); --radius:18px;
-}
-body{margin:0;font-family:sans-serif;background:var(--bg);color:var(--text);}
-.wrap{max-width:800px;margin:0 auto;padding:16px;}
-header{padding:16px;text-align:center;}
-h1{margin:0;}
-.card{background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--
-
-shadow);margin-bottom:12px;}
-.item{display:flex;align-items:center;justify-content:space-between;}
-.item img{width:50px;height:50px;object-fit:contain;}
-.remove{cursor:pointer;color:#ff6b6b;font-weight:bold;}
-input,button,select{padding:10px;border-radius:10px;border:none;margin-top:8px;}
-input[type="text"],input[type="url"],input[type="color"]{width:100%;}
-.btn{background:linear-gradient(135deg,var(--accent),var(--accent-2));color:white;font-weight:700;cursor:pointer;box-shadow:var(--shadow);}
-.btn:hover{opacity:0.9;}
-.notice-btn{
-  background:#ff6b6b;
-  color:white;
-  font-weight:700;
-  border:none;
-  padding:10px;
-  border-radius:12px;
-  margin-top:10px;
-
-  cursor:pointer;
-}
-footer{margin-top:40px;padding:16px;text-align:center;color:var(--muted);}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Корзина</title>
+  <style>
+    :root {--bg:#0f1220; --card:#171a2a; --text:#e8ebff; --muted:#9aa3c7; --accent:#6ea8ff; --accent-2:#7b6cff; --btn:#2a2f45; --btn-hover:#343a55; --shadow:0 10px 30px rgba(0,0,0,0.25); --radius:18px;}
+    body{margin:0; font-family:sans-serif; background:var(--bg); color:var(--text);}
+    .wrap{max-width:700px; margin:0 auto; padding:16px;}
+    .card{background:var(--card); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow); margin-bottom:12px;}
+    .btn{padding:12px 16px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow);}
+    .remove{background:var(--btn); margin-left:8px;}
+    .remove:hover{background:var(--btn-hover);}
+    .input{width:100%; padding:10px; margin-top:8px; border-radius:8px; border:none;}
+    .logo-btn{display:inline-block; margin-top:8px; padding:10px 14px; background:var(--accent); color:white; border-radius:10px; cursor:pointer;}
+  </style>
 </head>
 <body>
-<header class="wrap">
-  <h1>Корзина</h1>
-</header>
-
-<main class="wrap">
-  <div id="cart-list"></div>
-  <div id="total"></div>
-
-  <div class="card">
-    <h3>Детали заказа</h3>
-    <input type="text" id="nickname" placeholder="Ник">
-    <input type="color" id="mainColor" value="#000000">
-    <label for="mainColor">Основной цвет</label>
-    <input type="color" id="secondaryColor" 
-
-value="#ffffff">
-    <label for="secondaryColor">Второстепенный цвет</label>
-    <input type="url" id="logoUrl" placeholder="Ссылка на логотип">
-    <button type="button" class="notice-btn" onclick="setSendInTG()">Отправлю логотип в Telegram</button>
-    <button class="btn" onclick="checkout()">Оформить заказ и открыть Telegram</button>
-  </div>
-</main>
-
-<footer>© theConCreator</footer>
+<div class="wrap">
+  <h1>Ваша корзина</h1>
+  <div id="cart"></div>
+  <h2>Данные заказа</h2>
+  <input class="input" id="nick" placeholder="Ник">
+  <label>Основной цвет: <input type="color" id="mainColor" value="#000000"></label><br><br>
+  <label>Второстепенный цвет: <input type="color" id="secondColor" value="#ffffff"></label><br><br>
+  <input class="input" id="logo" placeholder="Ссылка на логотип (png/svg)">
+  <div class="logo-btn" onclick="chooseTelegramLogo()">Отправлю логотип в Telegram</div>
+  <br><br>
+  <button class="btn" onclick="checkout()">Оформить заказ</button>
+</div>
 
 <script>
-const username="theConCreator";
-let sendLogoInTG=false;
+function getCart(){return JSON.parse(localStorage.getItem("cart")||"[]");}
+function setCart(c){localStorage.setItem("cart",JSON.stringify(c));render();}
 
-function loadCart(){
-  let cart=JSON.parse(localStorage.getItem("cart")||"[]
-
-");
-  // фильтрация undefined
-  cart=cart.filter(c=>c && c.item && c.item.name);
-  localStorage.setItem("cart",JSON.stringify(cart));
-  return cart;
+function removeItem(id){
+  let c=getCart().filter(x=>x.item.id!==id);
+  setCart(c);
 }
 
-function renderCart(){
-  const cart=loadCart();
-  const list=document.getElementById("cart-list");
-  if(cart.length===0){list.innerHTML="<p>Корзина пуста</p>";document.getElementById("total").innerText="";return;}
-  list.innerHTML=cart.map((c,i)=>`
-    <div class="card item">
-      <span>${c.item.name}</span>
-      <span class="remove" onclick="removeItem(${i})">✖</span>
-    </div>
-  `).join('');
-  const total=cart.reduce((s,c)=>s+c.price,0);
-  
-
-document.getElementById("total").innerText="Итого: "+total.toFixed(2)+" $";
+function render(){
+  const cart=getCart();
+  document.getElementById("cart").innerHTML=
+    cart.length?cart.map(c=>`
+      <div class="card">
+        ${c.item.name} — $${c.price}
+        <button class="remove" onclick="removeItem('${c.item.id}')">Убрать</button>
+      </div>
+    `).join(''):"Корзина пуста";
 }
-
-function removeItem(i){
-  const cart=loadCart();
-  cart.splice(i,1);
-  localStorage.setItem("cart",JSON.stringify(cart));
-  renderCart();
-}
-
-function setSendInTG(){
-  sendLogoInTG=true;
-  document.getElementById("logoUrl").value="";
-  alert("Логотип будет отправлен в Telegram при заказе.");
+let telegramLogo=false;
+function chooseTelegramLogo(){
+  telegramLogo=true;
+  document.getElementById("logo").value="";
+  alert("Хорошо! При отправке заказа укажите логотип в Telegram.");
 }
 
 function checkout(){
-  const cart=loadCart();
-  if(cart.length===0){alert("Корзина пуста!");return;}
-  const 
-
-nick=document.getElementById("nickname").value.trim();
+  const cart=getCart();
+  if(!cart.length){alert("Корзина пуста!");return;}
+  const nick=document.getElementById("nick").value.trim();
   if(!nick){alert("Введите ник!");return;}
-  const mainColor=document.getElementById("mainColor").value;
-  const secondaryColor=document.getElementById("secondaryColor").value;
-  const logo=document.getElementById("logoUrl").value.trim();
+  const main=document.getElementById("mainColor").value;
+  const second=document.getElementById("secondColor").value;
+  const logo=document.getElementById("logo").value.trim();
 
-  // проверка логотипа
-  if(!logo && !sendLogoInTG){
-    alert("Добавьте ссылку на логотип или выберите вариант 'Отправлю логотип в Telegram'.");
+  if(!telegramLogo && !logo){
+    alert("Укажите логотип или выберите 'Отправлю в Telegram'");
     return;
   }
 
-  let msg="Заказ эмодзи:%0A";
-  cart.forEach(c=>{
-    msg+=`- ${c.item.name}%0A`;
-
-  });
-  msg+=`Ник: ${nick}%0A`;
-  msg+=`Основной цвет: ${mainColor}%0AВторостепенный цвет: ${secondaryColor}%0A`;
-  if(logo){msg+=`Логотип: ${logo}%0A`;}
-  else if(sendLogoInTG){msg+=`Логотип: будет отправлен в Telegram%0A`;}
-
-  const url=`https://t.me/${username}?text=${msg}`;
-  window.open(url,"_blank");
+  let logoText=logo?logo:"будет отправлен в Telegram";
+  const text=`Ник: ${nick}%0AЭмодзи: ${cart.map(c=>c.item.name).join(", ")}%0AЦвета: основной ${main}, второстепенный ${second}%0AЛоготип: ${logoText}`;
+  window.open(`https://t.me/theConCreator?text=${text}`,"_blank");
 }
-
-renderCart();
+render();
 </script>
 </body>
 </html>
-
