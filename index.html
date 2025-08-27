@@ -17,10 +17,10 @@ header{display:flex; justify-content:space-between; align-items:center; padding:
 .cart-btn:hover{background:var(--btn-hover);}
 .grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:16px;}
 @media (max-width:480px) {
-  .grid {grid-template-columns:1fr;} /* одна карточка на очень маленьких экранах */
+  .grid {grid-template-columns:1fr;} /* одна карточка на маленьких экранах */
 }
-.card{background:var(--card); border-radius:var(--radius); padding:14px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px; text-align:center;}
-.emoji-box{aspect-ratio:1/1; border-radius:14px; display:grid; place-items:center; border:1px dashed rgba(255,255,255,0.08); cursor:pointer; overflow:hidden;}
+.card{background:var(--card); border-radius:var(--radius); padding:14px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px; text-align:center; align-items:center;}
+.emoji-box{width:150px; height:150px; border-radius:14px; display:grid; place-items:center; border:1px dashed rgba(255,255,255,0.08); cursor:pointer; overflow:hidden;}
 .name{font-size:16px; font-weight:600; margin-top:5px;}
 .btn{margin-top:8px; padding:10px 12px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow); transition:0.2s;}
 .btn:hover{opacity:0.85;}
@@ -64,61 +64,66 @@ function toggleCart(item){
   setCart(cart);
 }
 
-function loadAnimations(){
+function render(){
+  const cart = getCart();
+  grid.innerHTML = '';
   items.forEach(item=>{
-    const container = document.createElement("div");
-    container.id = "anim-"+item.id;
-    container.style.width = "100%";
-    container.style.height = "100%";
-    container.style.maxWidth = "150px";
-    container.style.maxHeight = "150px";
+    const inCart = cart.find(c=>c.item.id===item.id);
 
+    // создаем карточку
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    // создаем emoji-box
+    const box = document.createElement('div');
+    box.className = 'emoji-box';
+
+    // контейнер для Lottie
+    const animContainer = document.createElement('div');
+    animContainer.style.width='100%';
+    animContainer.style.height='100%';
+    box.appendChild(animContainer);
+
+    // загружаем анимацию
     animations[item.id] = lottie.loadAnimation({
-      container: container,
+      container: animContainer,
       renderer: 'svg',
       loop: false,
       autoplay: false,
-      path: item.id+".json"
+      path: item.id+'.json'
     });
     animations[item.id].addEventListener('DOMLoaded', ()=>{
-      animations[item.id].goToAndStop(0,true); // Показываем первый кадр сразу
+      animations[item.id].goToAndStop(0,true);
     });
+
+    // клик/тап для анимации
+    box.onclick = ()=> {
+      const anim = animations[item.id];
+      if(!anim) return;
+      anim.stop();
+      anim.play();
+      anim.addEventListener("complete", ()=>anim.goToAndStop(0,true), {once:true});
+    };
+
+    // название
+    const nameDiv = document.createElement('div');
+    nameDiv.className='name';
+    nameDiv.textContent=item.name;
+
+    // кнопка
+    const btn = document.createElement('button');
+    btn.className='btn';
+    btn.textContent = inCart ? 'Убрать из корзины' : 'Добавить в корзину';
+    btn.onclick = ()=>toggleCart(item);
+
+    // собираем карточку
+    card.appendChild(box);
+    card.appendChild(nameDiv);
+    card.appendChild(btn);
+    grid.appendChild(card);
   });
 }
 
-function playAnimation(id){
-  const anim = animations[id];
-  if(!anim) return;
-  anim.stop();
-  anim.play();
-  anim.addEventListener("complete",()=>{anim.goToAndStop(0,true);},{once:true});
-}
-
-function render(){
-  const cart=getCart();
-  grid.innerHTML = items.map(item=>{
-    const inCart=cart.find(c=>c.item.id===item.id);
-    return `
-      <div class="card">
-        <div class="emoji-box" id="box-${item.id}"></div>
-        <div class="name">${item.name}</div>
-        <button class="btn" onclick='toggleCart(${JSON.stringify(item)})'>
-          ${inCart?"Убрать из корзины":"Добавить в корзину"}
-        </button>
-      </div>
-    `;
-  }).join('');
-
-  items.forEach(item=>{
-    const box = document.getElementById("box-"+item.id);
-    if(!box) return;
-    const animContainer = document.getElementById("anim-"+item.id);
-    if(!animContainer.parentNode) box.appendChild(animContainer);
-    box.onclick = ()=>playAnimation(item.id);
-  });
-}
-
-loadAnimations();
 render();
 </script>
 </body>
