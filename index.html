@@ -21,26 +21,29 @@ h1{font-size:20px;}
 .card{
   background:var(--card); border-radius:var(--radius); padding:14px;
   box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px;
-  text-align:center; align-items:center;
+  text-align:center; align-items:center; position:relative;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
-  position:relative;
 }
 .card:hover{transform: scale(1.05); box-shadow: 0 15px 35px rgba(0,0,0,0.35);}
 .card.added{border:2px solid var(--accent);}
 .card.added .btn{background: var(--accent-2);}
 .card.hit{border:2px solid orange;}
 
-/* Ленточка "Хит" */
-.card.hit::before{
-  content:"ХИТ";
-  position:absolute;
-  top:0; right:0;
-  background:orange;
-  color:#fff;
-  font-weight:700;
-  padding:2px 6px;
-  border-bottom-left-radius:8px;
-  font-size:12px;
+/* Ленточка "Хит" по диагонали */
+.card.hit::before {
+  content: "ХИТ";
+  position: absolute;
+  top: 10px;
+  right: -25px;
+  background: orange;
+  color: #fff;
+  font-weight: 700;
+  padding: 2px 12px;
+  font-size: 12px;
+  border-radius: 4px;
+  transform: rotate(45deg);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  z-index: 10;
 }
 
 .emoji-box{
@@ -92,7 +95,7 @@ const items = [
   {id:"HeartArms", name:"Сердце"},
   {id:"TopSign", name:"ТОП"},
 ];
-const hits = ["HeartArms","TopSign"]; // указываем id эмодзи, которые являются хитами
+const hits = ["HeartArms","TopSign"]; // Хиты
 const PRICE = 0.8;
 const grid = document.getElementById("grid");
 const animations = {};
@@ -112,7 +115,7 @@ function toggleCart(item){
 function render(){
   const cart=getCart();
 
-  // сортируем так, чтобы хиты шли первыми
+  // Сортировка с хитами первыми
   const sortedItems = [...items].sort((a,b)=>{
     const aHit = hits.includes(a.id) ? 1:0;
     const bHit = hits.includes(b.id) ? 1:0;
@@ -175,7 +178,7 @@ function addAnimations(){
         anim.addEventListener("complete",()=>{
           animBox.style.display="none";
           img.style.display="block";
-          img.style.transform = "none"; // сбрасываем масштаб/вращение
+          img.style.transform = "none";
           animBox.dataset.playing="false";
         }, {once:true});
       });
