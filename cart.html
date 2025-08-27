@@ -4,16 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Корзина</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-body{margin:0;font-family:sans-serif;background:#0f1220;color:#e8ebff;padding:16px;}
+body{margin:0;font-family:'Inter',sans-serif;background:#0f1220;color:#e8ebff;padding:16px;}
+h1,h2{margin-bottom:12px;}
 .card{background:#171a2a;border-radius:12px;padding:12px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
 .card img{width:50px;height:50px;}
 .btn{margin-top:8px;padding:10px 12px;border-radius:12px;background:linear-gradient(135deg,#6ea8ff,#7b6cff);color:white;border:none;font-weight:700;cursor:pointer;}
-label{display:block;margin:6px 0;}
-input[type="text"]{padding:6px;border-radius:6px;border:none;width:100%;}
-input[type="color"]
 
-{width:50px;height:30px;border:none;vertical-align:middle;}
+label{display:block;margin:6px 0;}
+input[type="text"], input[type="url"]{padding:6px;border-radius:6px;border:none;width:100%;}
+input[type="color"]{width:50px;height:30px;border:none;vertical-align:middle;}
 </style>
 </head>
 <body>
@@ -28,11 +29,15 @@ input[type="color"]
   <input type="color" id="mainColor" value="#000000">
 </label>
 <label>Второстепенный цвет:
-  <input type="color" id="secondaryColor" value="#ffffff">
-</label>
-<label>Логотип:
-  <button id="logoBtn">Отправлю логотип в Telegram</button>
+  <input type="color" id="secondaryColor" 
 
+value="#ffffff">
+</label>
+<label>Ссылка на логотип (опционально):
+  <input type="url" id="logoUrl" placeholder="https://">
+</label>
+<label>
+  <button id="logoBtn">Инструкция по логотипу</button>
 </label>
 
 <button class="btn" id="sendOrder">Оформить заказ и открыть Telegram</button>
@@ -44,21 +49,33 @@ const sendBtn = document.getElementById("sendOrder");
 
 function getCart(){return JSON.parse(localStorage.getItem("cart")||"[]");}
 
+
 function renderCart(){
   const cart = getCart();
-  if(cart.length===0) cartDiv.innerHTML="<p>Корзина пуста</p>";
-  else cartDiv.innerHTML=cart.map(i=>`
-    <div class="card">
-      <img src="${i.id}.png" alt="${i.name}">
-      <div>${i.name} — $${i.price.toFixed(2)}</div>
+  if(cart.length===0){cartDiv.innerHTML="<p>Корзина пуста</p>"; return;}
+  cartDiv.innerHTML = "";
+  cart.forEach(i=>{
+    const card = document.createElement("div");
+    card.className="card";
+    
+    const img = document.createElement("img");
+    img.src = i.id+".json"; // для GIF или Lottie можно вставить картинку-превью
+    img.alt = i.name;
+    card.appendChild(img);
+    
+    const text = document.createElement("div");
+    text.textContent = `${i.name} — $${i.price.toFixed(2)}`;
+    card.appendChild(text);
+    
+    cartDiv.appendChild(card);
+  });
 
-    </div>
-  `).join('');
 }
+
 renderCart();
 
 logoBtn.onclick = ()=>{
-  alert("Логотип нужно будет отправить вместе с заказом в Telegram");
+  alert("Логотип можно отправить в Telegram вместе с заказом, либо оставить ссылку в поле выше.");
 }
 
 sendBtn.onclick = ()=>{
@@ -67,11 +84,13 @@ sendBtn.onclick = ()=>{
   const nick = document.getElementById("nick").value || "Не указан";
   const mainColor = document.getElementById("mainColor").value;
   const secondaryColor = document.getElementById("secondaryColor").value;
+  const logoUrl = document.getElementById("logoUrl").value || "не 
+
+указан";
 
   let text = `Заказ от ${nick}:\n`;
-
   cart.forEach(i=>{text+=`- ${i.name} — $${i.price.toFixed(2)}\n`});
-  text += `Основной цвет: ${mainColor}\nВторостепенный цвет: ${secondaryColor}\nЛоготип: будет отправлен в Telegram`;
+  text += `Основной цвет: ${mainColor}\nВторостепенный цвет: ${secondaryColor}\nЛоготип: ${logoUrl}`;
 
   const username = "theConCreator";
   window.open(`https://t.me/${username}?start=${encodeURIComponent(text)}`, "_blank");
