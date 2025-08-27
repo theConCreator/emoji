@@ -1,130 +1,92 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Персональные эмодзи</title>
-<style>
-:root {
-  --bg:#0f1220; --card:#171a2a; --text:#e8ebff;
-  --accent:#6ea8ff; --accent-2:#7b6cff; --btn:#2a2f45; --btn-hover:#343a55;
-  --shadow:0 10px 30px rgba(0,0,0,0.25); --radius:18px;
-}
-body {margin:0; font-family:sans-serif; background:var(--bg); color:var(--text);}
-.wrap{max-width:980px; margin:0 auto; padding:16px;}
-header{display:flex; justify-content:space-between; align-items:center; padding:16px; background:var(--card); border-radius:var(--radius); margin-bottom:20px;}
-.cart-btn{color:var(--text); text-decoration:none; padding:10px 14px; border-radius:999px; background:var(--btn); font-weight:700;}
-.cart-btn:hover{background:var(--btn-hover);}
-.grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:16px;}
-@media (max-width:480px) {
-  .grid {grid-template-columns:1fr;} /* одна карточка на маленьких экранах */
-}
-.card{background:var(--card); border-radius:var(--radius); padding:14px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px; text-align:center; align-items:center;}
-.emoji-box{width:150px; height:150px; border-radius:14px; display:grid; place-items:center; border:1px dashed rgba(255,255,255,0.08); cursor:pointer; overflow:hidden;}
-.name{font-size:16px; font-weight:600; margin-top:5px;}
-.btn{margin-top:8px; padding:10px 12px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow); transition:0.2s;}
-.btn:hover{opacity:0.85;}
-footer{margin-top:40px; padding:16px; border-top:1px solid rgba(255,255,255,0.06); color:#9aa3c7; text-align:center;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Персональные эмодзи</title>
+  <style>
+    :root {
+      --bg:#0f1220; --card:#171a2a; --text:#e8ebff; --muted:#9aa3c7;
+      --accent:#6ea8ff; --accent-2:#7b6cff; --btn:#2a2f45; --btn-hover:#343a55;
+      --shadow:0 10px 30px rgba(0,0,0,0.25); --radius:18px;
+    }
+    body {margin:0; font-family:sans-serif; background:var(--bg); color:var(--text);}
+    .wrap {max-width:1000px; margin:0 auto; padding:16px;}
+    header {display:flex; justify-content:space-between; align-items:center; padding:16px;}
+    h1 {font-size:20px;}
+    .cart-btn {color:var(--text); text-decoration:none; padding:10px 16px; border-radius:999px; background:var(--btn); font-weight:600;}
+    .cart-btn:hover {background:var(--btn-hover);}
+    .grid {display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:16px;}
+    .card {background:var(--card); border-radius:var(--radius); padding:14px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px; text-align:center; align-items:center;}
+    .emoji-box {aspect-ratio:1/1; border-radius:14px; background:linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02)); display:flex; justify-content:center; align-items:center; width:100%;}
+    .emoji-box img {max-width:80%; max-height:80%; transition:transform 0.3s;}
+    .emoji-box img:hover {transform:scale(1.1);}
+    .name {font-size:15px; font-weight:600;}
+    .btn {margin-top:8px; padding:10px 12px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow);}
+    footer {margin-top:40px; padding:16px; border-top:1px solid rgba(255,255,255,0.06); color:var(--muted); text-align:center;}
+  </style>
 </head>
 <body>
-<header class="wrap">
-  <h1>Персональные Telegram эмодзи</h1>
-  <a class="cart-btn" href="cart.html">🛒 Корзина</a>
-</header>
+  <header class="wrap">
+    <h1>Персональные Telegram эмодзи</h1>
+    <a class="cart-btn" href="cart.html">🛒 Корзина</a>
+  </header>
 
-<main class="wrap">
-  <div class="grid" id="grid"></div>
-</main>
+  <main class="wrap">
+    <div class="grid" id="grid"></div>
+  </main>
 
-<footer class="wrap">© theConCreator</footer>
+  <footer class="wrap">© theConCreator</footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.10.2/lottie.min.js"></script>
-<script>
-const items = [
-  {id:"Flag1", name:"Флаг"},
-  {id:"Phone", name:"Телефон"},
-  {id:"Card", name:"Карточка"},
-  {id:"Case", name:"Кейс"},
-  {id:"HeartArms", name:"Сердце"},
-  {id:"TopSign", name:"ТОП"}
-];
-const PRICE = 0.8;
-const grid = document.getElementById("grid");
-const animations = {};
+  <script>
+    const items = [
+      {id:"Flag1", name:"Флаг"},
+      {id:"Phone", name:"Телефон"},
+      {id:"Card", name:"Карточка"},
+      {id:"Case", name:"Кейс"},
+      {id:"HeartArms", name:"Сердце"},
+      {id:"TopSign", name:"ТОП"},
+    ];
+    const PRICE = 0.8;
+    const grid = document.getElementById("grid");
 
-function getCart(){return JSON.parse(localStorage.getItem("cart")||"[]");}
-function setCart(c){localStorage.setItem("cart",JSON.stringify(c)); render();}
+    function getCart() {
+      return JSON.parse(localStorage.getItem("cart")||"[]");
+    }
 
-function toggleCart(item){
-  let cart=getCart();
-  const exists=cart.find(c=>c.item.id===item.id);
-  if(exists){cart=cart.filter(c=>c.item.id!==item.id);}
-  else {cart.push({item,price:PRICE});}
-  setCart(cart);
-}
+    function saveCart(cart) {
+      localStorage.setItem("cart", JSON.stringify(cart));
+    }
 
-function render(){
-  const cart = getCart();
-  grid.innerHTML = '';
-  items.forEach(item=>{
-    const inCart = cart.find(c=>c.item.id===item.id);
+    function toggleCart(item) {
+      let cart = getCart();
+      const exists = cart.find(c=>c.item.id===item.id);
+      if (exists) {
+        cart = cart.filter(c=>c.item.id!==item.id);
+      } else {
+        cart.push({item, price:PRICE});
+      }
+      saveCart(cart);
+      render();
+    }
 
-    // создаем карточку
-    const card = document.createElement('div');
-    card.className = 'card';
+    function render() {
+      const cart = getCart();
+      grid.innerHTML = items.map(item=>{
+        const inCart = cart.some(c=>c.item.id===item.id);
+        return `
+          <div class="card">
+            <div class="emoji-box"><img src="${item.id}.png" alt="${item.name}"></div>
+            <div class="name">${item.name}</div>
+            <button class="btn" onclick='toggleCart(${JSON.stringify(item)})'>
+              ${inCart ? "Убрать из корзины" : "Добавить в корзину"}
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
 
-    // создаем emoji-box
-    const box = document.createElement('div');
-    box.className = 'emoji-box';
-
-    // контейнер для Lottie
-    const animContainer = document.createElement('div');
-    animContainer.style.width='100%';
-    animContainer.style.height='100%';
-    box.appendChild(animContainer);
-
-    // загружаем анимацию
-    animations[item.id] = lottie.loadAnimation({
-      container: animContainer,
-      renderer: 'svg',
-      loop: false,
-      autoplay: false,
-      path: item.id+'.json'
-    });
-    animations[item.id].addEventListener('DOMLoaded', ()=>{
-      animations[item.id].goToAndStop(0,true);
-    });
-
-    // клик/тап для анимации
-    box.onclick = ()=> {
-      const anim = animations[item.id];
-      if(!anim) return;
-      anim.stop();
-      anim.play();
-      anim.addEventListener("complete", ()=>anim.goToAndStop(0,true), {once:true});
-    };
-
-    // название
-    const nameDiv = document.createElement('div');
-    nameDiv.className='name';
-    nameDiv.textContent=item.name;
-
-    // кнопка
-    const btn = document.createElement('button');
-    btn.className='btn';
-    btn.textContent = inCart ? 'Убрать из корзины' : 'Добавить в корзину';
-    btn.onclick = ()=>toggleCart(item);
-
-    // собираем карточку
-    card.appendChild(box);
-    card.appendChild(nameDiv);
-    card.appendChild(btn);
-    grid.appendChild(card);
-  });
-}
-
-render();
-</script>
+    render();
+  </script>
 </body>
 </html>
