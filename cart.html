@@ -7,43 +7,61 @@
 <style>
 body{margin:0;font-family:sans-serif;background:#0f1220;color:#e8ebff;}
 .wrap{max-width:700px;margin:0 auto;padding:16px;}
-.card{background:#171a2a;border-radius:18px;padding:16px;margin-bottom:12px;}
-.btn{padding:12px 16px;border-radius:12px;background:linear-gradient(135deg,#6ea8ff,#7b6cff);color:white;border:none;font-weight:700;cursor:pointer;}
-.remove{background:#2a2f45;margin-left:8px;}
-.input{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:none;}
-.logo-btn{display:inline-block;margin-top:8px;padding:10px 14px;background:#6ea8ff;color:white;border-radius:10px;cursor:pointer;font-weight:700;}
+h1{margin-bottom:20px;}
+.cart-item{background:#171a2a;border-radius:18px;padding:16px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;}
+.cart-name{font-weight:600;font-size:16px;}
+.cart-price{font-weight:700;}
+.remove-btn{padding:6px 12px;border-radius:10px;background:#2a2f45;color:white;border:none;cursor:pointer;font-weight:700;transition:0.2s;}
+.remove-btn:hover{opacity:0.8;}
+.input-field{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:none;margin-bottom:12px;}
+.color-field{margin-top:8px;margin-bottom:12px;}
+.logo-btn{display:block;width:100%;text-align:center;padding:12px;background:#6ea8ff;color:white;border-radius:12px;font-weight:700;cursor:pointer;margin-bottom:12px;transition:0.2s;}
+.logo-btn:hover{opacity:0.85;}
+.checkout-btn{width:100%;padding:14px;background:linear-gradient(135deg,#6ea8ff,#7b6cff);color:white;border:none;font-weight:700;border-radius:12px;cursor:pointer;font-size:16px;transition:0.2s;}
+.checkout-btn:hover{opacity:0.85;}
+footer{margin-top:40px;padding:16px;border-top:1px solid rgba(255,255,255,0.06);color:#9aa3c7;text-align:center;}
+@media (max-width:480px){
+  .cart-item{flex-direction:column;align-items:flex-start;}
+  .cart-price{margin-top:8px;}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
 <h1>Корзина</h1>
 <div id="cart"></div>
-<input class="input" id="nick" placeholder="Ник">
-<label>Основной цвет: <input type="color" id="mainColor" value="#000000"></label><br><br>
-<label>Второстепенный цвет: <input type="color" id="secondColor" value="#ffffff"></label><br><br>
-<input class="input" id="logo" placeholder="Ссылка на логотип">
-<div class="logo-btn" onclick="chooseTelegramLogo()">Отправлю логотип в Telegram</div><br><br>
-<button class="btn" onclick="checkout()">Оформить заказ</button>
+
+<input class="input-field" id="nick" placeholder="Ник">
+<label class="color-field">Основной цвет: <input type="color" id="mainColor" value="#000000"></label>
+<label class="color-field">Второстепенный цвет: <input type="color" id="secondColor" value="#ffffff"></label>
+<input class="input-field" id="logo" placeholder="Ссылка на логотип">
+<div class="logo-btn" onclick="chooseTelegramLogo()">Отправлю логотип в Telegram</div>
+<button class="checkout-btn" onclick="checkout()">Оформить заказ и открыть Telegram</button>
 </div>
+<footer>© theConCreator</footer>
 
 <script>
 function getCart(){return JSON.parse(localStorage.getItem("cart")||"[]");}
-function setCart(c){localStorage.setItem("cart",JSON.stringify(c));render();}
+function setCart(c){localStorage.setItem("cart",JSON.stringify(c)); renderCart();}
+
+function renderCart(){
+  const cart = getCart();
+  const cartDiv = document.getElementById("cart");
+  if(!cart.length){cartDiv.innerHTML="<p>Корзина пуста</p>"; return;}
+  cartDiv.innerHTML = cart.map(c=>{
+    return `
+      <div class="cart-item">
+        <div class="cart-name">${c.item.name}</div>
+        <div class="cart-price">$${c.price.toFixed(2)}</div>
+        <button class="remove-btn" onclick="removeItem('${c.item.id}')">Убрать</button>
+      </div>
+    `;
+  }).join('');
+}
 
 function removeItem(id){
   let c=getCart().filter(x=>x.item.id!==id);
   setCart(c);
-}
-
-function render(){
-  const cart=getCart();
-  document.getElementById("cart").innerHTML =
-    cart.length ? cart.map(c=>`
-      <div class="card">
-        ${c.item.name} — $${c.price}
-        <button class="remove" onclick="removeItem('${c.item.id}')">Убрать</button>
-      </div>
-    `).join('') : "Корзина пуста";
 }
 
 let telegramLogo=false;
@@ -61,12 +79,12 @@ function checkout(){
   const main=document.getElementById("mainColor").value;
   const second=document.getElementById("secondColor").value;
   const logo=document.getElementById("logo").value.trim();
-  if(!telegramLogo && !logo){alert("Укажите логотип или выберите 'Отправлю в Telegram'"); return;}
-  const logoText = logo?logo:"будет отправлен в Telegram";
-  const text=`Ник: ${nick}%0AЭмодзи: ${cart.map(c=>c.item.name).join(", ")}%0AОсновной цвет: ${main}%0AВторостепенный цвет: ${second}%0AЛоготип: ${logoText}`;
+  if(!telegramLogo && !logo){alert("Укажите логотип или выберите 'Отправлю логотип в Telegram'"); return;}
+  const logoText = telegramLogo ? "будет отправлен в Telegram" : logo;
+  const text = `Ник: ${nick}%0AЭмодзи: ${cart.map(c=>c.item.name).join(", ")}%0AОсновной цвет: ${main}%0AВторостепенный цвет: ${second}%0AЛоготип: ${logoText}`;
   window.open(`https://t.me/theConCreator?text=${text}`, '_blank');
 }
-render();
+renderCart();
 </script>
 </body>
 </html>
