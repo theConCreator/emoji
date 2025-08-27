@@ -1,78 +1,191 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Корзина</title>
-  <style>
-    :root{
-      --bg:#0f1220; --card:#171a2a; --text:#e8ebff; --muted:#9aa3c7;
-      --accent:#6ea8ff; --accent-2:#7b6cff; --btn:#2a2f45; --btn-hover:#343a55;
-      --shadow:0 10px 30px rgba(0,0,0,0.25); --radius:18px;
-    }
-    body{margin:0; font-family:sans-serif; background:var(--bg); color:var(--text);}
-    .wrap{max-width:680px; margin:0 auto; padding:16px;}
-    .card{background:var(--card); border-radius:var(--radius); padding:14px; box-shadow:var(--shadow); margin-bottom:12px;}
-    input,button{width:100%; margin-top:8px; padding:10px; border-radius:10px; border:none; font-size:14px;}
-    input{background:#fff; color:#000;}
-    button{background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:#fff; font-weight:700; cursor:pointer;}
-    button:hover{opacity:0.9;}
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Персональные эмодзи — Корзина</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f1220;--card:#171a2a;--text:#e8ebff;--muted:#9aa3c7;--accent:#6ea8ff;--accent-2:#7b6cff;--radius:12px}
+*{box-sizing:border-box;font-family:'Inter',sans-serif}
+body{margin:0;background:var(--bg);color:var(--text);padding:18px}
+.container{max-width:820px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+h1{margin:0}
+.list{display:flex;flex-direction:column;gap:12px;margin-bottom:12px}
+.item{display:flex;align-items:center;gap:12px;background:var(--card);padding:10px;border-radius:10px;box-shadow:0 8px 22px rgba(0,0,0,0.35)}
+.thumb{width:72px;height:72px;border-radius:8px;background:rgba(255,255,255,0.02);display:grid;place-items:center;overflow:hidden}
+.meta{flex:1}
+.remove{background:#ff5a5f;border:none;padding:8px 10px;border-radius:8px;color:#fff;cursor:pointer}
+.form{background:var(--card);padding:14px;border-radius:10px;box-shadow:0 8px 22px rgba(0,0,0,0.35);display:flex;flex-direction:column;gap:10px}
+input[type="text"], input[type="url"]{padding:8px;border-radius:8px;border:none;background:rgba(255,255,255,0.02);color:var(--text)}
+.color-row{display:flex;gap:8px;align-items:center}
+.color-row input[type="color"]{width:46px;height:36px;border:none;padding:0;background:transparent;cursor:pointer}
+.btn{padding:10px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;font-weight:700;cursor:pointer}
+.small{font-size:13px;color:var(--muted)}
+.toggle-on{background:#29a37a}
+.note{font-size:13px;color:var(--muted)}
+.total{font-weight:800}
+.actions{display:flex;gap:10px;flex-wrap:wrap}
+</style>
 </head>
 <body>
-<header class="wrap">
-  <h1>Корзина</h1>
-  <a href="index.html" style="color:var(--muted);">← Назад</a>
-</header>
-
-<main class="wrap">
-  <div id="list"></div>
-
-  <div class="card">
-    <h3>Данные для заказа</h3>
-    <input id="nickname" placeholder="Ваш ник">
-    <label style="display:block;margin-top:8px;">Основной цвет:</label>
-    <input id="primaryColor" type="color" value="#000000">
-    <label style="display:block;margin-top:8px;">Второстепенный цвет:</label>
-    <input id="secondaryColor" type="color" value="#ffffff">
-    <input id="logo" placeholder="Ссылка на логотип (или нажмите кнопку ниже)">
-    <button type="button" onclick="document.getElementById('logo').value='Логотип будет прислан в Telegram'">Отправлю логотип в Telegram</button>
+<div class="container">
+  <div class="header">
+    <h1>Корзина</h1>
+    <a href="index.html" class="small" style="color:var(--accent)">← Вернуться к каталогу</a>
   </div>
 
-  <button onclick="checkout()">Оформить заказ и открыть Telegram</button>
-</main>
+  <div id="list" class="list"></div>
+  <div id="total" class="total" style="margin-bottom:14px"></div>
+
+  <div class="form">
+    <label>Ник (Telegram без @):
+      <input id="nick" type="text" placeholder="theUser">
+    </label>
+
+    <div class="color-row">
+      <div style="min-width:130px" class="small">Основной цвет (заливка)</div>
+      <input id="mainColor" type="color" value="#000000">
+      <input id="mainColorText" type="text" placeholder="#rrggbb" value="#000000" style="flex:1">
+    </div>
+
+    <div class="color-row">
+      <div style="min-width:130px" class="small">Второстепенный (обводка/лого)</div>
+      <input id="secondaryColor" type="color" value="#ffffff">
+      <input id="secondaryColorText" type="text" placeholder="#rrggbb" value="#ffffff" style="flex:1">
+    </div>
+
+    <label>Ссылка на логотип (опционально):
+      <input id="logoUrl" type="url" placeholder="https://example.com/logo.png">
+    </label>
+
+    <div class="actions">
+      <button id="logoToggle" type="button" class="btn" style="background:var(--card);color:var(--text);box-shadow:none">Отправлю логотип в Telegram</button>
+      <button id="clearCartBtn" type="button" class="btn" style="background:#2b2f3f">Очистить корзину</button>
+    </div>
+    <div class="note">Если выберете «Отправлю логотип в Telegram», поле ссылки заблокируется и в заказе появится отметка.</div>
+
+    <button id="send" class="btn">Оформить заказ и открыть Telegram</button>
+  </div>
+</div>
 
 <script>
-function getCart(){return JSON.parse(localStorage.getItem("cart")||"[]");}
-function render(){
-  const list=document.getElementById("list");
-  let cart=getCart();
-  if(cart.length===0){list.innerHTML="<p>Корзина пуста</p>"; return;}
-  list.innerHTML=cart.map(c=>`
-    <div class="card">
-      <b>${c.name}</b> — ${c.price}$
-    </div>`).join('');
+/* Normalization helpers */
+function rawCart(){ try { return JSON.parse(localStorage.getItem('cart')||'[]'); } catch(e){ return []; } }
+function normalizeEntry(e){
+  if(!e) return null;
+  if(e.id && e.name) return {id:String(e.id), name:String(e.name), price:Number(e.price||0)};
+  if(e.item){ const it=e.item; return {id:String(it.id||it.name||'unknown'), name:String(it.name||it.id||'Unknown'), price:Number(e.price||it.price||0)}; }
+  const id = e.id||e.itemId||e.name||Object.values(e)[0]||'unknown';
+  const name = e.name||e.title||id;
+  const price = Number(e.price||0);
+  return {id:String(id), name:String(name), price:price};
+}
+function getCart(){ const normalized = rawCart().map(normalizeEntry).filter(Boolean); try{ localStorage.setItem('cart', JSON.stringify(normalized)); }catch(e){} return normalized; }
+function setCart(arr){ localStorage.setItem('cart', JSON.stringify(arr)); renderList(); }
+
+/* UI elements */
+const listEl = document.getElementById('list');
+const totalEl = document.getElementById('total');
+const mainColor = document.getElementById('mainColor');
+const mainColorText = document.getElementById('mainColorText');
+const secondaryColor = document.getElementById('secondaryColor');
+const secondaryColorText = document.getElementById('secondaryColorText');
+const logoToggle = document.getElementById('logoToggle');
+const logoUrl = document.getElementById('logoUrl');
+let logoWillBeSent = false;
+
+/* sync color pickers and text */
+mainColor.addEventListener('input', ()=> mainColorText.value = mainColor.value);
+mainColorText.addEventListener('input', ()=> { if(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(mainColorText.value.trim())) mainColor.value = mainColorText.value.trim(); });
+secondaryColor.addEventListener('input', ()=> secondaryColorText.value = secondaryColor.value);
+secondaryColorText.addEventListener('input', ()=> { if(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(secondaryColorText.value.trim())) secondaryColor.value = secondaryColorText.value.trim(); });
+
+/* logo toggle */
+logoToggle.addEventListener('click', ()=>{
+  logoWillBeSent = !logoWillBeSent;
+  if(logoWillBeSent){ logoUrl.value=''; logoUrl.disabled=true; logoToggle.classList.add('toggle-on'); logoToggle.textContent='Отмечено: пришлю логотип в Telegram'; }
+  else { logoUrl.disabled=false; logoToggle.classList.remove('toggle-on'); logoToggle.textContent='Отправлю логотип в Telegram'; }
+});
+
+/* render list */
+async function existsURL(url){
+  try{ const r = await fetch(url, {method:'GET'}); return r.ok; } catch(e){ return false; }
 }
 
-function checkout(){
-  const cart=getCart();
-  if(cart.length===0){alert("Корзина пуста"); return;}
-  const nickname=document.getElementById("nickname").value.trim();
-  const primary=document.getElementById("primaryColor").value;
-  const secondary=document.getElementById("secondaryColor").value;
-  const logo=document.getElementById("logo").value.trim();
-
-  let text="Заказ эмодзи:%0A";
-  cart.forEach(c=>{text+=`- ${c.name}%0A`;});
-  text+=`%0AНик: ${nickname}`;
-  text+=`%0AОсновной цвет: ${primary}`;
-  text+=`%0AВторостепенный цвет: ${secondary}`;
-  text+=`%0AЛоготип: ${logo}`;
-
-  window.open(`https://t.me/theConCreator?text=${text}`,"_blank");
+async function renderList(){
+  const cart = getCart();
+  listEl.innerHTML='';
+  if(cart.length === 0){
+    listEl.innerHTML = '<div class="note">Корзина пуста</div>';
+    totalEl.textContent='';
+    return;
+  }
+  let sum = 0;
+  cart.forEach(async (item, idx)=>{
+    const row = document.createElement('div'); row.className='item';
+    const thumb = document.createElement('div'); thumb.className='thumb'; row.appendChild(thumb);
+    const png = `${item.id}.png`;
+    if(await existsURL(png)){
+      const img = document.createElement('img'); img.src=png; img.alt=item.name; img.style.maxWidth='100%'; img.style.maxHeight='100%'; thumb.appendChild(img);
+    } else {
+      thumb.innerHTML = `<div style="padding:6px;color:var(--muted);text-align:center">${escapeHtml(item.name)}</div>`;
+    }
+    const meta = document.createElement('div'); meta.className='meta'; meta.innerHTML=`<div style="font-weight:700">${escapeHtml(item.name)}</div><div class="small">Файл: ${escapeHtml(item.id)}.json / ${escapeHtml(item.id)}.png</div>`;
+    row.appendChild(meta);
+    const removeBtn = document.createElement('button'); removeBtn.className='remove'; removeBtn.textContent='Удалить'; removeBtn.addEventListener('click', ()=>{ const newCart = getCart().filter((_,i)=>i!==idx); setCart(newCart); });
+    row.appendChild(removeBtn);
+    listEl.appendChild(row);
+    sum += Number(item.price||0);
+    totalEl.textContent = `Итого: $${sum.toFixed(2)}`;
+  });
 }
 
-render();
+/* escape helper */
+function escapeHtml(s){ return String(s||'').replace(/[&<>"']/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+
+/* clear cart */
+document.getElementById('clearCartBtn').addEventListener('click', ()=>{ if(confirm('Очистить корзину?')){ setCart([]); } });
+
+/* send order */
+document.getElementById('send').addEventListener('click', async ()=>{
+  const cart = getCart();
+  if(cart.length === 0){ alert('Корзина пуста'); return; }
+  const nickRaw = document.getElementById('nick').value.trim();
+  const nick = nickRaw ? (nickRaw.startsWith('@') ? nickRaw : '@'+nickRaw) : '-';
+  const main = mainColor.value || mainColorText.value || '-';
+  const secondary = secondaryColor.value || secondaryColorText.value || '-';
+  const logo = logoWillBeSent ? '(будет прислан в Telegram)' : (logoUrl.value.trim() || '(не указан)');
+
+  const lines = [];
+  lines.push('🛒 Новый заказ от сайта эмодзи');
+  lines.push('');
+  lines.push('Эмодзи:');
+  cart.forEach(c => lines.push(`• ${c.name} — файл: ${c.id}.json / ${c.id}.png — $${Number(c.price||0).toFixed(2)}`));
+  lines.push('');
+  lines.push(`Ник: ${nick}`);
+  lines.push(`Основной цвет: ${main}`);
+  lines.push(`Второстепенный цвет: ${secondary}`);
+  lines.push(`Логотип: ${logo}`);
+  lines.push('');
+  lines.push(`Итого: $${cart.reduce((s,c)=>s+Number(c.price||0),0).toFixed(2)}`);
+  lines.push('');
+  lines.push('Пожалуйста, пришлите файл логотипа в Telegram, если вы отметили, что отправите его в чате.');
+
+  const text = lines.join('\n');
+  const encoded = encodeURIComponent(text);
+  const username = 'theConCreator';
+  const deep = `tg://resolve?domain=${encodeURIComponent(username)}&text=${encoded}`;
+  const web = `https://t.me/${encodeURIComponent(username)}?text=${encoded}`;
+
+  // Try to open tg:// then fallback to https
+  window.location.href = deep;
+  setTimeout(()=>{ window.location.href = web; }, 800);
+});
+
+/* init */
+(function init(){ /* normalize storage */ const norm = getCart(); localStorage.setItem('cart', JSON.stringify(norm)); renderList(); })();
 </script>
 </body>
 </html>
