@@ -24,12 +24,14 @@ h1{font-size:20px;}
   text-align:center; align-items:center; position:relative; overflow:hidden;
 }
 .card.hit{border:2px solid orange;}
+.card.discount{border:2px solid #2ecc71;}
 .ribbon {
   position: absolute; top:5px; right:-38px;
   width:120px; height:30px; background:orange; color:#fff; font-weight:bold;
   text-align:center; line-height:30px; transform:rotate(45deg); z-index:10;
   box-shadow:0 2px 5px rgba(0,0,0,0.3);
 }
+.ribbon.discount {background:#2ecc71;}
 .emoji-box{
   aspect-ratio:1/1; border-radius:14px; background:#1e2235;
   display:flex; justify-content:center; align-items:center; width:100%; overflow:hidden; position:relative;
@@ -42,6 +44,9 @@ input{padding:6px; border-radius:8px; border:none; margin-top:6px; width:90%;}
 .order-section{margin-top:20px; display:flex; flex-direction:column; gap:10px;}
 .note-logo{color:#e8ebff; background:#2a2f45; padding:10px; border-radius:12px; text-align:center; font-weight:700; box-shadow:0 0 10px rgba(0,0,0,0.5);}
 .btn{margin-top:8px; padding:10px 12px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow);}
+.total{margin-top:15px; font-size:18px; font-weight:700; text-align:right;}
+.clear-btn{background:#e74c3c; padding:8px 12px; border-radius:12px; border:none; color:white; cursor:pointer; font-weight:700; margin-top:10px;}
+.clear-btn:hover{opacity:0.9;}
 </style>
 </head>
 <body>
@@ -52,6 +57,8 @@ input{padding:6px; border-radius:8px; border:none; margin-top:6px; width:90%;}
 
 <main class="wrap">
   <div class="grid" id="grid"></div>
+  <div class="total" id="total">Итого: $0.00</div>
+  <button class="clear-btn" id="clearCart">Очистить корзину</button>
 
   <div class="order-section">
     <input type="text" id="username" placeholder="Ник">
@@ -82,9 +89,11 @@ function render(){
   grid.innerHTML = sorted.map(c=>{
     const item=c.item;
     const hitClass = hits.includes(item.id)?"hit":"";
+    const discountClass = item.discount?"discount":"";
     return `
-      <div class="card ${hitClass}">
-        ${hitClass?'<div class="ribbon">ХИТ</div>':''}
+      <div class="card ${hitClass} ${discountClass}">
+        ${hits.includes(item.id)?'<div class="ribbon">ХИТ</div>':''}
+        ${item.discount?'<div class="ribbon discount">СКИДКА</div>':''}
         <div class="emoji-box" id="box-${item.id}">
           <img src="${item.id}.png" alt="${item.name}">
           <div class="anim-box" id="anim-${item.id}"></div>
@@ -94,6 +103,10 @@ function render(){
       </div>
     `;
   }).join('');
+
+  const total = cart.reduce((sum,c)=>sum+c.price,0);
+  document.getElementById("total").textContent = "Итого: $" + total.toFixed(2);
+
   preloadAnimations();
   addAnimations();
 }
@@ -138,6 +151,11 @@ function addAnimations(){
     });
   });
 }
+
+document.getElementById("clearCart").addEventListener("click",()=>{
+  localStorage.removeItem("cart");
+  render();
+});
 
 document.getElementById("sendOrder").addEventListener("click",()=>{
   const cart=getCart();
