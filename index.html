@@ -1,122 +1,163 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Персональные эмодзи</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.10.2/lottie.min.js"></script>
-  <style>
-    :root {
-      --bg:#0f1220; --card:#171a2a; --text:#e8ebff; --muted:#9aa3c7;
-      --accent:#6ea8ff; --accent-2:#7b6cff; --btn:#2a2f45; --btn-hover:#343a55;
-      --shadow:0 10px 30px rgba(0,0,0,0.25); --radius:18px;
-    }
-    body {margin:0; font-family:sans-serif; background:var(--bg); color:var(--text);}
-    .wrap {max-width:1000px; margin:0 auto; padding:16px;}
-    header {display:flex; justify-content:space-between; align-items:center; padding:16px;}
-    h1 {font-size:20px;}
-    .cart-btn {color:var(--text); text-decoration:none; padding:10px 16px; border-radius:999px; background:var(--btn); font-weight:600;}
-    .cart-btn:hover {background:var(--btn-hover);}
-    .floating-cart {position:fixed; bottom:20px; right:20px; background:var(--btn); color:var(--text); padding:14px 18px; border-radius:50%; box-shadow:var(--shadow); font-size:22px; text-decoration:none;}
-    .floating-cart:hover {background:var(--btn-hover);}
-    .grid {display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:16px;}
-    .card {position:relative; background:var(--card); border-radius:var(--radius); padding:14px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px; text-align:center; align-items:center;}
-    .emoji-box {aspect-ratio:1/1; border-radius:14px; background:#1e2235; display:flex; justify-content:center; align-items:center; width:100%; overflow:hidden;}
-    .emoji-box img {max-width:80%; max-height:80%;}
-    .name {font-size:15px; font-weight:600;}
-    .btn {margin-top:8px; padding:10px 12px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow);}
-    .ribbon {
-      position: absolute;
-      top: 12px;
-      right: -32px;
-      width: 140px;
-      padding: 4px 0;
-      background: orange;
-      color: #fff;
-      font-weight: bold;
-      font-size: 13px;
-      text-align: center;
-      line-height: 1.2;
-      transform: rotate(45deg);
-      z-index: 10;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-      pointer-events: none;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Персональные эмодзи</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.10.2/lottie.min.js"></script>
+<style>
+:root {
+  --bg:#0f1220; --card:#171a2a; --text:#e8ebff; --muted:#9aa3c7;
+  --accent:#6ea8ff; --accent-2:#7b6cff; --btn:#2a2f45; --btn-hover:#343a55;
+  --shadow:0 10px 30px rgba(0,0,0,0.25); --radius:18px;
+}
+body{margin:0; font-family:sans-serif; background:var(--bg); color:var(--text);}
+.wrap{max-width:1000px; margin:0 auto; padding:16px;}
+header{display:flex; justify-content:space-between; align-items:center; padding:16px;}
+h1{font-size:20px;}
+.grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:16px;}
+.card{
+  background:var(--card); border-radius:var(--radius); padding:14px;
+  box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px;
+  text-align:center; align-items:center; position:relative; overflow:hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
+}
+.card:hover{transform: scale(1.05); box-shadow: 0 15px 35px rgba(0,0,0,0.35);}
+.card.added{border:2px solid var(--accent);}
+.card.hit{border:2px solid orange;}
+.ribbon {
+  position: absolute;
+  top: -10px; right: -35px;
+  width: 120px; height: 30px;
+  background: orange; color: #fff; font-weight: bold; text-align: center;
+  line-height: 30px; transform: rotate(45deg); z-index:10;
+  box-shadow:0 2px 5px rgba(0,0,0,0.3);
+}
+.emoji-box{
+  aspect-ratio:1/1; border-radius:14px; background:#1e2235;
+  display:flex; justify-content:center; align-items:center; width:100%; overflow:hidden; position:relative;
+}
+.emoji-box img{max-width:80%; max-height:80%; display:block; margin:auto;}
+.anim-box{position:absolute; top:0; left:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; pointer-events:none; display:none;}
+.anim-box svg{width:80% !important; height:80% !important;}
+.name{font-size:15px; font-weight:600;}
+.btn{margin-top:8px; padding:10px 12px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow);}
+.floating-cart{
+  position:fixed; bottom:20px; right:20px; background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  color:#fff; border:none; border-radius:50%; width:60px; height:60px;
+  display:flex; justify-content:center; align-items:center; font-size:26px; font-weight:700;
+  box-shadow:var(--shadow); cursor:pointer; z-index:999; text-decoration:none;
+}
+.floating-cart:hover{opacity:0.9;}
+</style>
 </head>
 <body>
-  <header class="wrap">
-    <h1>Персональные Telegram эмодзи</h1>
-    <a class="cart-btn" href="cart.html">🛒 Корзина</a>
-  </header>
+<header class="wrap">
+  <h1>Персональные Telegram эмодзи</h1>
+</header>
 
-  <main class="wrap">
-    <div class="grid" id="grid"></div>
-  </main>
+<main class="wrap">
+  <div class="grid" id="grid"></div>
+</main>
 
-  <a href="cart.html" class="floating-cart">🛒</a>
+<a href="cart.html" class="floating-cart">🛒</a>
 
-  <script>
-    const items = [
-      {id:"Flag1", name:"Флаг"},
-      {id:"Phone", name:"Телефон"},
-      {id:"Card", name:"Карточка", hit:true},
-      {id:"Case", name:"Кейс"},
-      {id:"HeartArms", name:"Сердце", hit:true},
-      {id:"TopSign", name:"ТОП"},
-    ];
-    const PRICE = 0.8;
-    const grid = document.getElementById("grid");
+<script>
+const items = [
+  {id:"Flag1", name:"Флаг"},
+  {id:"Phone", name:"Телефон"},
+  {id:"Card", name:"Карточка"},
+  {id:"Case", name:"Кейс"},
+  {id:"HeartArms", name:"Сердце"},
+  {id:"TopSign", name:"ТОП"},
+];
+const hits = ["HeartArms","TopSign"];
+const PRICE = 0.8;
+const grid = document.getElementById("grid");
+const animations = {};
 
-    function getCart(){ return JSON.parse(localStorage.getItem("cart")||"[]"); }
-    function saveCart(cart){ localStorage.setItem("cart", JSON.stringify(cart)); }
+function getCart(){ return JSON.parse(localStorage.getItem("cart")||"[]"); }
+function saveCart(cart){ localStorage.setItem("cart", JSON.stringify(cart)); }
 
-    function toggleCart(item){
-      let cart=getCart();
-      const exists=cart.find(c=>c.item.id===item.id);
-      if(exists){ cart=cart.filter(c=>c.item.id!==item.id); }
-      else{ cart.push({item, price:PRICE}); }
-      saveCart(cart); render();
-    }
+function toggleCart(item){
+  let cart=getCart();
+  const exists=cart.find(c=>c.item.id===item.id);
+  if(exists){ cart=cart.filter(c=>c.item.id!==item.id); }
+  else{ cart.push({item, price:PRICE}); }
+  saveCart(cart);
+  render();
+}
 
-    function render(){
-      const cart=getCart();
-      const sorted=[...items].sort((a,b)=>(b.hit?1:0)-(a.hit?1:0));
-      grid.innerHTML=sorted.map(item=>{
-        const inCart=cart.some(c=>c.item.id===item.id);
-        return `
-          <div class="card">
-            ${item.hit?'<div class="ribbon">ХИТ</div>':""}
-            <div class="emoji-box" id="box-${item.id}"><img src="${item.id}.png" alt="${item.name}"></div>
-            <div class="name">${item.name}</div>
-            <button class="btn" onclick='toggleCart(${JSON.stringify(item)})'>
-              ${inCart?"Убрать":"Добавить"}
-            </button>
-          </div>
-        `;
-      }).join('');
-      addAnimations();
-    }
+function render(){
+  const cart=getCart();
+  const sortedItems = [...items].sort((a,b)=>{
+    const aHit = hits.includes(a.id)?1:0;
+    const bHit = hits.includes(b.id)?1:0;
+    return bHit - aHit;
+  });
 
-    function addAnimations(){
-      items.forEach(item=>{
-        const box=document.getElementById("box-"+item.id);
-        if(!box) return;
-        const img=box.querySelector("img");
-        const anim=lottie.loadAnimation({
-          container:box,
-          renderer:"svg",
-          loop:false,
-          autoplay:false,
-          path:item.id+".json"
-        });
-        box.addEventListener("mouseenter", ()=>{ img.style.display="none"; anim.goToAndPlay(0,true); });
-        box.addEventListener("click", ()=>{ img.style.display="none"; anim.goToAndPlay(0,true); });
-        anim.addEventListener("complete",()=>{ img.style.display="block"; });
+  grid.innerHTML = sortedItems.map(item=>{
+    const inCart=cart.some(c=>c.item.id===item.id);
+    const hitClass = hits.includes(item.id) ? "hit" : "";
+    return `
+      <div class="card ${hitClass}">
+        ${hitClass?'<div class="ribbon">ХИТ</div>':''}
+        <div class="emoji-box" id="box-${item.id}">
+          <img src="${item.id}.png" alt="${item.name}">
+          <div class="anim-box" id="anim-${item.id}"></div>
+        </div>
+        <div class="name">${item.name}</div>
+        <button class="btn" onclick='toggleCart(${JSON.stringify(item)})'>
+          ${inCart?"Убрать":"Добавить"}
+        </button>
+      </div>
+    `;
+  }).join('');
+
+  preloadAnimations();
+  addAnimations();
+}
+
+function preloadAnimations(){
+  items.forEach(item=>{
+    const animBox=document.getElementById(`anim-${item.id}`);
+    if(!animations[item.id]){
+      animations[item.id] = lottie.loadAnimation({
+        container: animBox,
+        renderer: "svg",
+        loop:false,
+        autoplay:false,
+        path:item.id+".json"
       });
+      animBox.style.display="none";
     }
+  });
+}
 
-    render();
-  </script>
+function addAnimations(){
+  items.forEach(item=>{
+    const box=document.getElementById("box-"+item.id);
+    const img=box.querySelector("img");
+    const animBox=document.getElementById(`anim-${item.id}`);
+    const anim = animations[item.id];
+    ["mouseenter","click","touchstart"].forEach(ev=>{
+      box.addEventListener(ev,()=>{
+        if(animBox.dataset.playing==="true") return;
+        animBox.dataset.playing="true";
+        img.style.display="none";
+        animBox.style.display="flex";
+        anim.goToAndPlay(0,true);
+        anim.addEventListener("complete",()=>{
+          animBox.style.display="none";
+          img.style.display="block";
+          animBox.dataset.playing="false";
+        }, {once:true});
+      });
+    });
+  });
+}
+
+render();
+</script>
 </body>
 </html>
