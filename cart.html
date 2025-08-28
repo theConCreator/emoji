@@ -13,10 +13,7 @@
 }
 body{margin:0; font-family:sans-serif; background:var(--bg); color:var(--text);}
 .wrap{max-width:1000px; margin:0 auto; padding:16px;}
-header{display:flex; justify-content:space-between; align-items:center; padding:16px;}
-h1{font-size:20px;}
-.cart-btn{color:var(--text); text-decoration:none; padding:10px 16px; border-radius:999px; background:var(--btn); font-weight:600;}
-.cart-btn:hover{background:var(--btn-hover);}
+h1{font-size:22px; margin-bottom:20px;}
 .grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:16px;}
 .card{
   background:var(--card); border-radius:var(--radius); padding:14px;
@@ -24,15 +21,16 @@ h1{font-size:20px;}
   text-align:center; align-items:center; position:relative; overflow:hidden;
 }
 .card.hit{border:2px solid orange;}
-.card.discount{border:2px solid #00c851;}
+.card.discount{border:2px solid #22c55e;}
 .ribbon {
-  position: absolute; top:8px; right:-32px;
-  width:100px; height:22px; font-size:12px;
-  background:orange; color:#fff; font-weight:bold;
-  text-align:center; line-height:22px; transform:rotate(45deg); z-index:10;
-  box-shadow:0 2px 5px rgba(0,0,0,0.3);
+  position: absolute;
+  top: 12px; right: -34px;
+  width: 110px; height: 24px;
+  background: orange; color: #fff; font-weight: bold; text-align: center;
+  line-height: 24px; transform: rotate(45deg); z-index:10;
+  font-size: 12px; box-shadow:0 2px 5px rgba(0,0,0,0.3);
 }
-.ribbon.discount{background:#00c851;}
+.ribbon.discount{background:#22c55e;}
 .emoji-box{
   aspect-ratio:1/1; border-radius:14px; background:#1e2235;
   display:flex; justify-content:center; align-items:center; width:100%; overflow:hidden; position:relative;
@@ -41,82 +39,81 @@ h1{font-size:20px;}
 .anim-box{position:absolute; top:0; left:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; pointer-events:none; display:none;}
 .anim-box svg{width:80% !important; height:80% !important;}
 .name{font-size:15px; font-weight:600;}
-input, label{color:var(--text);}
-input{
-  padding:10px; border-radius:12px; border:1px solid var(--btn-hover);
-  margin-top:6px; width:90%; background:var(--card); color:var(--text);
+.price {font-size:14px;}
+.old-price {text-decoration: line-through; color: var(--muted); margin-right:6px;}
+.new-price {color:#22c55e; font-weight:700;}
+.total{margin-top:20px; font-size:18px; font-weight:700;}
+.btn{margin-top:20px; padding:12px 18px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow);}
+input, textarea{
+  background:var(--card); border:1px solid var(--muted); border-radius:10px; padding:10px; color:var(--text); width:100%; margin-top:10px;
 }
-input::placeholder{color:var(--muted);}
-.order-section{margin-top:20px; display:flex; flex-direction:column; gap:10px;}
-.note-logo{color:#e8ebff; background:#2a2f45; padding:10px; border-radius:12px; text-align:center; font-weight:700; box-shadow:0 0 10px rgba(0,0,0,0.5);}
-.btn{margin-top:8px; padding:10px 12px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow);}
 </style>
 </head>
 <body>
-<header class="wrap">
+<div class="wrap">
   <h1>Корзина</h1>
-  <a class="cart-btn" href="index.html">← Назад</a>
-</header>
-
-<main class="wrap">
-  <div class="grid" id="grid"></div>
-
-  <div class="order-section">
-    <input type="text" id="username" placeholder="Ник">
-    <label>Основной цвет</label>
-    <input type="color" id="mainColor" value="#000000">
-    <label>Второстепенный цвет</label>
-    <input type="color" id="secondaryColor" value="#FFFFFF">
-    <div class="note-logo">Отправьте логотип в Telegram вместе с заказом</div>
-    <button class="btn" id="sendOrder">Оформить заказ и открыть Telegram</button>
-  </div>
-</main>
+  <div id="grid" class="grid"></div>
+  <div class="total" id="total"></div>
+  <p style="margin-top:20px;">После оформления заказа отправьте ваш логотип в Telegram.</p>
+  <button class="btn" onclick="checkout()">Оформить заказ</button>
+</div>
 
 <script>
-const hits = ["HeartArms"];
-const discounts = ["TopSign"];
-const animations = {};
+const hits=["HeartArms"];
+const discounts=["TopSign"];
+const PRICE=0.8;
+const animations={};
 
 function getCart(){ return JSON.parse(localStorage.getItem("cart")||"[]"); }
 
 function render(){
   const cart=getCart();
   const sorted = [...cart].sort((a,b)=>{
-    const aHit = hits.includes(a.item.id)?1:0;
-    const bHit = hits.includes(b.item.id)?1:0;
-    const aDisc = discounts.includes(a.item.id)?1:0;
-    const bDisc = discounts.includes(b.item.id)?1:0;
-    return (bHit+bDisc) - (aHit+aDisc);
+    const aScore=(hits.includes(a.item.id)?2:0)+(discounts.includes(a.item.id)?1:0);
+    const bScore=(hits.includes(b.item.id)?2:0)+(discounts.includes(b.item.id)?1:0);
+    return bScore - aScore;
   });
-  const grid = document.getElementById("grid");
-  grid.innerHTML = sorted.map(c=>{
+  const grid=document.getElementById("grid");
+  let total=0;
+  grid.innerHTML=sorted.map(c=>{
     const item=c.item;
-    let ribbon="";
-    if(hits.includes(item.id)) ribbon='<div class="ribbon">ХИТ</div>';
-    if(discounts.includes(item.id)) ribbon='<div class="ribbon discount">СКИДКА</div>';
+    const isHit=hits.includes(item.id);
+    const isDiscount=discounts.includes(item.id);
+    const ribbon=isHit?'<div class="ribbon">ХИТ</div>':isDiscount?'<div class="ribbon discount">СКИДКА</div>':"";
+    
+    let finalPrice=PRICE;
+    let priceHTML="";
+    if(isDiscount){
+      finalPrice = +(PRICE*0.8).toFixed(2);
+      priceHTML=`<div class="price"><span class="old-price">$${PRICE.toFixed(2)}</span><span class="new-price">$${finalPrice.toFixed(2)}</span></div>`;
+    } else {
+      priceHTML=`<div class="price">$${finalPrice.toFixed(2)}</div>`;
+    }
+    total+=finalPrice;
+
     return `
-      <div class="card ${hits.includes(item.id)?"hit":""} ${discounts.includes(item.id)?"discount":""}">
+      <div class="card ${isHit?"hit":""} ${isDiscount?"discount":""}">
         ${ribbon}
         <div class="emoji-box" id="box-${item.id}">
           <img src="${item.id}.png" alt="${item.name}">
           <div class="anim-box" id="anim-${item.id}"></div>
         </div>
         <div class="name">${item.name}</div>
-        <div>Цена: $${c.price.toFixed(2)}</div>
+        ${priceHTML}
       </div>
     `;
   }).join('');
-  preloadAnimations();
-  addAnimations();
+  document.getElementById("total").textContent="Итого: $"+total.toFixed(2);
+  preloadAnimations(); addAnimations();
 }
 
 function preloadAnimations(){
   getCart().forEach(c=>{
     const item=c.item;
-    const animBox=document.getElementById(`anim-${item.id}`);
+    const animBox=document.getElementById("anim-"+item.id);
     if(!animations[item.id]){
       animations[item.id]=lottie.loadAnimation({
-        container: animBox,
+        container:animBox,
         renderer:"svg",
         loop:false,
         autoplay:false,
@@ -126,15 +123,14 @@ function preloadAnimations(){
     }
   });
 }
-
 function addAnimations(){
   getCart().forEach(c=>{
     const item=c.item;
     const box=document.getElementById("box-"+item.id);
     const img=box.querySelector("img");
-    const animBox=document.getElementById(`anim-${item.id}`);
+    const animBox=document.getElementById("anim-"+item.id);
     const anim=animations[item.id];
-    ["mouseenter","click","touchstart"].forEach(ev=>{
+    ["click","touchstart"].forEach(ev=>{
       box.addEventListener(ev,()=>{
         if(animBox.dataset.playing==="true") return;
         animBox.dataset.playing="true";
@@ -150,23 +146,9 @@ function addAnimations(){
     });
   });
 }
-
-document.getElementById("sendOrder").addEventListener("click",()=>{
-  const cart=getCart();
-  if(cart.length===0){ alert("Корзина пуста"); return; }
-  const username=document.getElementById("username").value.trim();
-  if(!username){ alert("Введите Ник"); return; }
-  const mainColor=document.getElementById("mainColor").value;
-  const secondaryColor=document.getElementById("secondaryColor").value;
-
-  let msg=`Ник: ${username}\nЭмодзи:\n`;
-  cart.forEach(c=>{ msg+=`- ${c.item.name} ($${c.price.toFixed(2)})\n`; });
-  msg+=`Основной цвет: ${mainColor}\nВторостепенный цвет: ${secondaryColor}\nЛоготип: отправлен в Telegram`;
-
-  const tgLink=`https://t.me/theConCreator?text=${encodeURIComponent(msg)}`;
-  window.open(tgLink,"_blank");
-});
-
+function checkout(){
+  alert("Заказ оформлен! Не забудьте отправить ваш логотип в Telegram.");
+}
 render();
 </script>
 </body>
