@@ -6,146 +6,115 @@
 <title>Корзина</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.10.2/lottie.min.js"></script>
 <style>
-:root{
+:root {
   --bg:#0f1220; --card:#171a2a; --text:#e8ebff; --muted:#9aa3c7;
   --accent:#6ea8ff; --accent-2:#7b6cff; --btn:#2a2f45; --btn-hover:#343a55;
   --shadow:0 10px 30px rgba(0,0,0,0.25); --radius:18px;
-  --green:#22c55e; --orange:#ff9800; --red:#ff4d4f;
 }
-*{box-sizing:border-box}
 body{margin:0; font-family:sans-serif; background:var(--bg); color:var(--text);}
 .wrap{max-width:1000px; margin:0 auto; padding:16px;}
-header{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;}
-h1{font-size:22px; margin:0;}
-.btn{
-  padding:10px 14px; border-radius:12px;
-  background:linear-gradient(135deg,var(--accent),var(--accent-2));
-  color:#fff; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow);
-  text-decoration:none; display:inline-block; margin:4px 4px 4px 0;
-}
-.btn.danger{background:var(--red);}
-.btn.green{background:var(--green);}
-.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px;}
+h1{font-size:22px; margin-bottom:20px;}
+.grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:16px;}
 .card{
   background:var(--card); border-radius:var(--radius); padding:14px;
-  box-shadow:var(--shadow); display:flex; flex-direction:column;
-  gap:8px; text-align:center; align-items:center; position:relative;
+  box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px;
+  text-align:center; align-items:center; position:relative; overflow:hidden;
 }
+.card.hit{border:2px solid orange;}
+.card.discount{border:2px solid #22c55e;}
+.ribbon {
+  position: absolute;
+  top: 12px; right: -34px;
+  width: 110px; height: 24px;
+  background: orange; color: #fff; font-weight: bold; text-align: center;
+  line-height: 24px; transform: rotate(45deg); z-index:10;
+  font-size: 12px; box-shadow:0 2px 5px rgba(0,0,0,0.3);
+}
+.ribbon.discount{background:#22c55e;}
 .emoji-box{
   aspect-ratio:1/1; border-radius:14px; background:#1e2235;
-  display:flex; justify-content:center; align-items:center;
-  width:100%; overflow:hidden;
+  display:flex; justify-content:center; align-items:center; width:100%; overflow:hidden; position:relative;
 }
-.emoji-box img{max-width:80%; max-height:80%; display:block;}
+.emoji-box img{max-width:80%; max-height:80%; display:block; margin:auto;}
 .name{font-size:15px; font-weight:600;}
-.price{font-size:14px;}
-.old-price{text-decoration:line-through; color:var(--muted); margin-right:6px;}
-.new-price{color:var(--green); font-weight:700;}
-.ribbon{
-  position:absolute; top:12px; right:-34px; width:110px; height:24px;
-  background:var(--orange); color:#fff; font-weight:700; text-align:center;
-  line-height:24px; transform:rotate(45deg); z-index:10; font-size:12px;
-  box-shadow:0 2px 5px rgba(0,0,0,.3);
-}
-.ribbon.discount{background:var(--green);}
-input,select{
-  width:100%; padding:8px; border-radius:8px; border:none;
-  background:#2a2f45; color:var(--text); margin-top:6px;
-}
-.total{margin-top:16px; font-size:18px; font-weight:700; text-align:right;}
+.price {font-size:14px;}
+.old-price {text-decoration: line-through; color: var(--muted); margin-right:6px;}
+.new-price {color:#22c55e; font-weight:700;}
+.total{margin-top:20px; font-size:18px; font-weight:700;}
+.btn{margin-top:8px; padding:10px 14px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow);}
+.controls{margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;}
+.controls .btn{flex:1;}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
-    <h1>Корзина</h1>
-    <div>
-      <a href="index.html" class="btn">⬅ Назад</a>
-      <button class="btn danger" onclick="clearCart()">Очистить</button>
-    </div>
-  </header>
-
-  <div id="list" class="grid"></div>
-  <div class="total" id="total">Итого: $0.00</div>
-
-  <h2>Данные для заказа</h2>
-  <input type="text" placeholder="Ваш ник в Telegram">
-  <select>
-    <option>Белый фон</option>
-    <option>Чёрный фон</option>
-    <option>Прозрачный фон</option>
-  </select>
-  <select>
-    <option>Цвет 1</option>
-    <option>Цвет 2</option>
-    <option>Цвет 3</option>
-  </select>
-
-  <p style="margin-top:10px;color:var(--muted)">После оформления заказа отправьте логотип в Telegram.</p>
-  <button class="btn green">Оформить заказ</button>
+  <h1>Корзина</h1>
+  <div id="grid" class="grid"></div>
+  <div class="total" id="total"></div>
+  <div class="controls">
+    <button class="btn" onclick="clearCart()">Очистить корзину</button>
+    <a href="index.html" class="btn" style="text-align:center; display:block;">⬅ Назад</a>
+    <button class="btn" onclick="checkout()">Оформить заказ</button>
+  </div>
+  <p style="margin-top:20px;">После оформления заказа отправьте ваш логотип в Telegram.</p>
 </div>
 
 <script>
-const discounts = ["TopSign"]; // скидка 20%
+const hits=["HeartArms"];
+const discounts=["TopSign"];
+const PRICE=0.8;
 
-function cleanCartSchema(arr){
-  return (Array.isArray(arr)?arr:[]).filter(x=>x && x.item && x.item.id && typeof x.price === 'number');
-}
-function getCart(){
-  const raw = JSON.parse(localStorage.getItem("cart")||"[]");
-  const cleaned = cleanCartSchema(raw);
-  if (cleaned.length!==raw.length) localStorage.setItem("cart", JSON.stringify(cleaned));
-  return cleaned;
-}
-function saveCart(cart){localStorage.setItem("cart", JSON.stringify(cart));}
+function getCart(){ return JSON.parse(localStorage.getItem("cart")||"[]"); }
+function saveCart(cart){ localStorage.setItem("cart", JSON.stringify(cart)); render(); }
 
 function removeItem(id){
-  let cart = getCart();
-  cart = cart.filter(c=>c.item.id!==id);
+  let cart=getCart().filter(c=>c.item.id!==id);
   saveCart(cart);
-  render();
 }
-function clearCart(){saveCart([]); render();}
+function clearCart(){ saveCart([]); }
 
 function render(){
-  const list = document.getElementById("list");
-  const totalEl = document.getElementById("total");
-  const cart = getCart();
-  if(!cart.length){
-    list.innerHTML="<p>Корзина пуста</p>";
-    totalEl.textContent="Итого: $0.00";
-    return;
-  }
-
+  const cart=getCart();
+  const grid=document.getElementById("grid");
   let total=0;
-  list.innerHTML=cart.map(c=>{
-    const isDiscount = discounts.includes(c.item.id);
-    let oldPrice = 0.8, newPrice=0.8;
-    if(isDiscount){ newPrice=+(0.8*0.8).toFixed(2); oldPrice=0.8; }
-    else{ newPrice=0.8; }
-    total+=newPrice;
+  grid.innerHTML=cart.map(c=>{
+    const item=c.item;
+    const isHit=hits.includes(item.id);
+    const isDiscount=discounts.includes(item.id);
+    const ribbon=isHit?'<div class="ribbon">ХИТ</div>':isDiscount?'<div class="ribbon discount">СКИДКА</div>':"";
+    
+    total+=c.price;
 
-    const ribbon = isDiscount?'<div class="ribbon discount">СКИДКА</div>':'';
-    const priceHTML = isDiscount
-      ? `<div class="price"><span class="old-price">$${oldPrice.toFixed(2)}</span><span class="new-price">$${newPrice.toFixed(2)}</span></div>`
-      : `<div class="price">$${newPrice.toFixed(2)}</div>`;
+    let priceHTML="";
+    if(isDiscount){
+      priceHTML=`<div class="price"><span class="old-price">$${PRICE.toFixed(2)}</span><span class="new-price">$${c.price.toFixed(2)}</span></div>`;
+    } else {
+      priceHTML=`<div class="price">$${c.price.toFixed(2)}</div>`;
+    }
 
     return `
-      <div class="card">
+      <div class="card ${isHit?"hit":""} ${isDiscount?"discount":""}">
         ${ribbon}
         <div class="emoji-box">
-          <img src="${c.item.id}.png" alt="${c.item.name}">
+          <img src="${item.id}.png" alt="${item.name}">
         </div>
-        <div class="name">${c.item.name}</div>
+        <div class="name">${item.name}</div>
         ${priceHTML}
-        <button class="btn danger" onclick="removeItem('${c.item.id}')">Удалить</button>
+        <button class="btn" onclick="removeItem('${item.id}')">Удалить</button>
       </div>
     `;
   }).join('');
-
-  totalEl.textContent = "Итого: $"+total.toFixed(2);
+  document.getElementById("total").textContent="Итого: $"+total.toFixed(2);
 }
 
+function checkout(){
+  const cart=getCart();
+  if(cart.length===0){ alert("Корзина пуста"); return; }
+  let msg="Заказ:\n";
+  cart.forEach(c=>{ msg+=`${c.item.name} - $${c.price.toFixed(2)}\n`; });
+  msg+="Общая сумма: $"+cart.reduce((s,c)=>s+c.price,0).toFixed(2);
+  alert(msg+"\nОтправьте логотип в Telegram.");
+}
 render();
 </script>
 </body>
