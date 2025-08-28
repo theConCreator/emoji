@@ -14,17 +14,19 @@
 body{margin:0; font-family:sans-serif; background:var(--bg); color:var(--text);}
 .wrap{max-width:1000px; margin:0 auto; padding:16px;}
 header{display:flex; justify-content:space-between; align-items:center; padding:16px;}
-h1{font-size:22px; margin:0;}
+h1{font-size:20px;}
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));
-  gap:20px;
+  grid-template-columns:repeat(2, 1fr);
+  gap:16px;
 }
+@media (min-width:768px){.grid{grid-template-columns:repeat(3,1fr);}}
+@media (min-width:1024px){.grid{grid-template-columns:repeat(4,1fr);}}
+@media (min-width:1400px){.grid{grid-template-columns:repeat(5,1fr);}}
 .card{
-  background:var(--card); border-radius:var(--radius); padding:16px;
+  background:var(--card); border-radius:var(--radius); padding:14px;
   box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px;
   text-align:center; align-items:center; position:relative; overflow:hidden;
-  min-height:250px;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
 }
 .card:hover{transform: scale(1.05); box-shadow: 0 15px 35px rgba(0,0,0,0.35);}
@@ -34,10 +36,10 @@ h1{font-size:22px; margin:0;}
 .ribbon {
   position: absolute;
   top: 12px; right: -34px;
-  width: 110px; height: 22px;
+  width: 110px; height: 20px;
   background: orange; color: #fff; font-weight: bold; text-align: center;
-  line-height: 22px; transform: rotate(45deg); z-index:10;
-  font-size: 12px; box-shadow:0 2px 5px rgba(0,0,0,0.3);
+  line-height: 20px; transform: rotate(45deg); z-index:10;
+  font-size: 11px; box-shadow:0 2px 5px rgba(0,0,0,0.3);
 }
 .ribbon.discount{background:#22c55e;}
 .emoji-box{
@@ -47,27 +49,16 @@ h1{font-size:22px; margin:0;}
 .emoji-box img{max-width:80%; max-height:80%; display:block; margin:auto;}
 .anim-box{position:absolute; top:0; left:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; pointer-events:none; display:none;}
 .anim-box svg{width:80% !important; height:80% !important;}
-.name{font-size:16px; font-weight:600;}
-.btn{
-  margin-top:8px; padding:12px 14px; border-radius:12px;
-  background:linear-gradient(135deg,var(--accent),var(--accent-2));
-  color:white; border:none; font-weight:700; cursor:pointer;
-  box-shadow:var(--shadow); transition:0.2s;
-}
-.btn:hover{opacity:0.9;}
+.name{font-size:15px; font-weight:600;}
+.btn{margin-top:8px; padding:10px 12px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow);}
 .floating-cart{
   position:fixed; bottom:20px; right:20px; background:linear-gradient(135deg,var(--accent),var(--accent-2));
-  color:#fff; border:none; border-radius:50%; width:64px; height:64px;
-  display:flex; justify-content:center; align-items:center; font-size:24px; font-weight:700;
+  color:#fff; border:none; border-radius:50%; width:60px; height:60px;
+  display:flex; justify-content:center; align-items:center; font-size:22px; font-weight:700;
   box-shadow:var(--shadow); cursor:pointer; z-index:999; text-decoration:none;
 }
 .floating-cart span{font-size:14px; background:#ff4444; border-radius:50%; padding:2px 6px; margin-left:4px;}
 .floating-cart:hover{opacity:0.9;}
-@media (min-width:1024px){
-  .wrap{max-width:1200px;}
-  .card{padding:20px;}
-  .btn{font-size:15px; padding:12px 16px;}
-}
 </style>
 </head>
 <body>
@@ -97,12 +88,11 @@ const items = [
   {id:"Cap", name:"Кепка"},
   {id:"SignetRing", name:"Кольцо"},
   {id:"Rock", name:"Рок"},
-  {id:"Mask", name:"Маска"},
+  {id:"Mask", name:"Маска"}
 ];
 const hits = ["HeartArms"];
 const discounts = ["TopSign"];
 const PRICE = 0.8;
-const grid = document.getElementById("grid");
 const animations = {};
 
 function getCart(){ return JSON.parse(localStorage.getItem("cart")||"[]"); }
@@ -112,9 +102,8 @@ function toggleCart(item){
   let cart=getCart();
   const exists=cart.find(c=>c.item.id===item.id);
   if(exists){ cart=cart.filter(c=>c.item.id!==item.id); }
-  else{ 
-    let price=PRICE;
-    if(discounts.includes(item.id)) price=(PRICE*0.8);
+  else{
+    let price = discounts.includes(item.id)?PRICE*0.8:PRICE;
     cart.push({item, price});
   }
   saveCart(cart);
@@ -122,8 +111,7 @@ function toggleCart(item){
 }
 
 function updateCartCount(){
-  const count=getCart().length;
-  document.getElementById("cartCount").textContent=count;
+  document.getElementById("cartCount").textContent=getCart().length;
 }
 
 function render(){
@@ -134,11 +122,11 @@ function render(){
     return bScore - aScore;
   });
 
-  grid.innerHTML = sortedItems.map(item=>{
-    const inCart=cart.some(c=>c.item.id===item.id);
-    const hitClass = hits.includes(item.id) ? "hit" : "";
-    const discountClass=discounts.includes(item.id) ? "discount" : "";
-    const ribbon=hits.includes(item.id)?'<div class="ribbon">ХИТ</div>':discounts.includes(item.id)?'<div class="ribbon discount">СКИДКА</div>':"";
+  document.getElementById("grid").innerHTML = sortedItems.map(item=>{
+    const inCart = cart.some(c=>c.item.id===item.id);
+    const hitClass = hits.includes(item.id)?"hit":"";
+    const discountClass = discounts.includes(item.id)?"discount":"";
+    const ribbon = hits.includes(item.id)?'<div class="ribbon">ХИТ</div>':discounts.includes(item.id)?'<div class="ribbon discount">СКИДКА</div>':"";
     return `
       <div class="card ${hitClass} ${discountClass}">
         ${ribbon}
@@ -161,7 +149,7 @@ function render(){
 function preloadAnimations(){
   items.forEach(item=>{
     const animBox=document.getElementById(`anim-${item.id}`);
-    if(!animations[item.id]){
+    if(animBox && !animations[item.id]){
       const anim = lottie.loadAnimation({
         container: animBox,
         renderer: "svg",
@@ -174,23 +162,23 @@ function preloadAnimations(){
 
       anim.addEventListener("complete",()=>{
         animBox.style.display="none";
-        const img=animBox.parentElement.querySelector("img");
-        img.style.display="block";
+        const img = animBox.parentElement.querySelector("img");
+        if(img) img.style.display="block";
         animBox.dataset.playing="false";
       });
-    }
-    const box=document.getElementById("box-"+item.id);
-    const img=box.querySelector("img");
-    ["mouseenter","click","touchstart"].forEach(ev=>{
-      box.addEventListener(ev,()=>{
-        const anim=animations[item.id];
-        if(animBox.dataset.playing==="true") return;
-        animBox.dataset.playing="true";
-        img.style.display="none";
-        animBox.style.display="flex";
-        anim.goToAndPlay(0,true);
+
+      const box=document.getElementById("box-"+item.id);
+      const img=box.querySelector("img");
+      ["mouseenter","click","touchstart"].forEach(ev=>{
+        box.addEventListener(ev,()=>{
+          if(animBox.dataset.playing==="true") return;
+          animBox.dataset.playing="true";
+          img.style.display="none";
+          animBox.style.display="flex";
+          anim.goToAndPlay(0,true);
+        });
       });
-    });
+    }
   });
 }
 
