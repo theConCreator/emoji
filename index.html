@@ -43,17 +43,14 @@ h1{font-size:20px;}
 .anim-box{position:absolute; top:0; left:0; width:100%; height:100%; display:flex; justify-content:center; align-items:center; pointer-events:none; display:none;}
 .anim-box svg{width:80% !important; height:80% !important;}
 .name{font-size:15px; font-weight:600;}
-.price {font-size:14px;}
-.old-price {text-decoration: line-through; color: var(--muted); margin-right:6px;}
-.new-price {color:#22c55e; font-weight:700;}
 .btn{margin-top:8px; padding:10px 12px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow);}
 .floating-cart{
-  position:fixed; bottom:16px; right:16px;
-  background:linear-gradient(135deg,var(--accent),var(--accent-2));
-  color:#fff; border:none; border-radius:50%; width:64px; height:64px;
-  display:flex; justify-content:center; align-items:center; font-size:24px; font-weight:700;
+  position:fixed; bottom:20px; right:20px; background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  color:#fff; border:none; border-radius:50%; width:60px; height:60px;
+  display:flex; justify-content:center; align-items:center; font-size:22px; font-weight:700;
   box-shadow:var(--shadow); cursor:pointer; z-index:999; text-decoration:none;
 }
+.floating-cart span{font-size:14px; background:#ff4444; border-radius:50%; padding:2px 6px; margin-left:4px;}
 .floating-cart:hover{opacity:0.9;}
 </style>
 </head>
@@ -66,7 +63,7 @@ h1{font-size:20px;}
   <div class="grid" id="grid"></div>
 </main>
 
-<a href="cart.html" class="floating-cart">🛒</a>
+<a href="cart.html" class="floating-cart" id="cartBtn">🛒<span id="cartCount">0</span></a>
 
 <script>
 const items = [
@@ -78,59 +75,53 @@ const items = [
   {id:"TopSign", name:"ТОП"},
 ];
 const hits = ["HeartArms"];
-const discounts = ["TopSign"];  // 👈 список скидок
+const discounts=["TopSign"];
 const PRICE = 0.8;
 const grid = document.getElementById("grid");
 const animations = {};
 
 function getCart(){ return JSON.parse(localStorage.getItem("cart")||"[]"); }
-function saveCart(cart){ localStorage.setItem("cart", JSON.stringify(cart)); }
+function saveCart(cart){ localStorage.setItem("cart", JSON.stringify(cart)); updateCartCount(); }
 
 function toggleCart(item){
   let cart=getCart();
   const exists=cart.find(c=>c.item.id===item.id);
-  if(exists){ 
-    cart=cart.filter(c=>c.item.id!==item.id); 
-  } else { 
-    let price = PRICE;
-    if(discounts.includes(item.id)) price = +(PRICE*0.8).toFixed(2);  // скидка 20%
+  if(exists){ cart=cart.filter(c=>c.item.id!==item.id); }
+  else{ 
+    let price=PRICE;
+    if(discounts.includes(item.id)) price=(PRICE*0.8);
     cart.push({item, price});
   }
   saveCart(cart);
   render();
 }
 
+function updateCartCount(){
+  const count=getCart().length;
+  document.getElementById("cartCount").textContent=count;
+}
+
 function render(){
   const cart=getCart();
   const sortedItems = [...items].sort((a,b)=>{
-    const aScore = (hits.includes(a.id)?2:0)+(discounts.includes(a.id)?1:0);
-    const bScore = (hits.includes(b.id)?2:0)+(discounts.includes(b.id)?1:0);
+    const aScore=(hits.includes(a.id)?2:0)+(discounts.includes(a.id)?1:0);
+    const bScore=(hits.includes(b.id)?2:0)+(discounts.includes(b.id)?1:0);
     return bScore - aScore;
   });
 
   grid.innerHTML = sortedItems.map(item=>{
     const inCart=cart.some(c=>c.item.id===item.id);
-    const isHit = hits.includes(item.id);
-    const isDiscount = discounts.includes(item.id);
-    const ribbons = isHit ? '<div class="ribbon">ХИТ</div>' : 
-                    isDiscount ? '<div class="ribbon discount">СКИДКА</div>' : "";
-
-    let priceHTML = "";
-    if(isDiscount){
-      priceHTML = `<div class="price"><span class="old-price">$${PRICE.toFixed(2)}</span><span class="new-price">$${(PRICE*0.8).toFixed(2)}</span></div>`;
-    } else {
-      priceHTML = `<div class="price">$${PRICE.toFixed(2)}</div>`;
-    }
-
+    const hitClass = hits.includes(item.id) ? "hit" : "";
+    const discountClass=discounts.includes(item.id) ? "discount" : "";
+    const ribbon=hits.includes(item.id)?'<div class="ribbon">ХИТ</div>':discounts.includes(item.id)?'<div class="ribbon discount">СКИДКА</div>':"";
     return `
-      <div class="card ${isHit?"hit":""} ${isDiscount?"discount":""}">
-        ${ribbons}
+      <div class="card ${hitClass} ${discountClass}">
+        ${ribbon}
         <div class="emoji-box" id="box-${item.id}">
           <img src="${item.id}.png" alt="${item.name}">
           <div class="anim-box" id="anim-${item.id}"></div>
         </div>
         <div class="name">${item.name}</div>
-        ${priceHTML}
         <button class="btn" onclick='toggleCart(${JSON.stringify(item)})'>
           ${inCart?"Убрать":"Добавить"}
         </button>
@@ -140,6 +131,7 @@ function render(){
 
   preloadAnimations();
   addAnimations();
+  updateCartCount();
 }
 
 function preloadAnimations(){
@@ -164,7 +156,7 @@ function addAnimations(){
     const img=box.querySelector("img");
     const animBox=document.getElementById(`anim-${item.id}`);
     const anim = animations[item.id];
-    ["click","touchstart"].forEach(ev=>{
+    ["mouseenter","click","touchstart"].forEach(ev=>{
       box.addEventListener(ev,()=>{
         if(animBox.dataset.playing==="true") return;
         animBox.dataset.playing="true";
