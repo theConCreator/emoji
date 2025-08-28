@@ -4,11 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Корзина</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.10.2/lottie.min.js"></script>
 <style>
 :root {
   --bg:#0f1220; --card:#171a2a; --text:#e8ebff; --muted:#9aa3c7;
-  --accent:#6ea8ff; --accent-2:#7b6cff; --btn:#2a2f45; --btn-hover:#343a55;
+  --accent:#6ea8ff; --accent-2:#7b6cff;
   --shadow:0 10px 30px rgba(0,0,0,0.25); --radius:18px;
 }
 body{margin:0; font-family:sans-serif; background:var(--bg); color:var(--text);}
@@ -40,10 +39,28 @@ h1{font-size:22px; margin-bottom:20px;}
 .price {font-size:14px;}
 .old-price {text-decoration: line-through; color: var(--muted); margin-right:6px;}
 .new-price {color:#22c55e; font-weight:700;}
-.total{margin-top:20px; font-size:18px; font-weight:700;}
-.btn{margin-top:8px; padding:10px 14px; border-radius:12px; background:linear-gradient(135deg,var(--accent),var(--accent-2)); color:white; border:none; font-weight:700; cursor:pointer; box-shadow:var(--shadow);}
+.total{margin-top:20px; font-size:18px; font-weight:700; text-align:center;}
+.btn{
+  margin-top:8px; padding:10px 14px; border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-2));
+  color:white; border:none; font-weight:700; cursor:pointer;
+  box-shadow:var(--shadow); transition:0.2s;
+}
+.btn:hover{opacity:0.9;}
 .controls{margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;}
-.controls .btn{flex:1;}
+.controls .btn{flex:1; min-width:120px;}
+.options{
+  margin-top:20px; background:var(--card); padding:16px;
+  border-radius:var(--radius); box-shadow:var(--shadow);
+}
+.options h2{font-size:18px; margin-bottom:10px;}
+.option-group{margin-bottom:14px; display:flex; flex-direction:column; gap:6px;}
+.option-group label{font-size:14px; color:var(--muted);}
+input[type="color"], input[type="text"]{
+  padding:8px; border-radius:10px; border:none; outline:none;
+  background:#1e2235; color:var(--text); font-size:14px;
+}
+input[type="text"]{width:100%;}
 </style>
 </head>
 <body>
@@ -51,12 +68,28 @@ h1{font-size:22px; margin-bottom:20px;}
   <h1>Корзина</h1>
   <div id="grid" class="grid"></div>
   <div class="total" id="total"></div>
+
+  <div class="options">
+    <h2>Персонализация заказа</h2>
+    <div class="option-group">
+      <label for="fillColor">Цвет заливки:</label>
+      <input type="color" id="fillColor" value="#ffffff">
+    </div>
+    <div class="option-group">
+      <label for="strokeColor">Цвет обводки:</label>
+      <input type="color" id="strokeColor" value="#000000">
+    </div>
+    <div class="option-group">
+      <label for="nickname">Ваш ник:</label>
+      <input type="text" id="nickname" placeholder="@username">
+    </div>
+  </div>
+
   <div class="controls">
     <button class="btn" onclick="clearCart()">Очистить корзину</button>
     <a href="index.html" class="btn" style="text-align:center; display:block;">⬅ Назад</a>
-    <button class="btn" onclick="checkout()">Оформить заказ</button>
+    <button class="btn" onclick="sendToTelegram()">Отправить заказ</button>
   </div>
-  <p style="margin-top:20px;">После оформления заказа отправьте ваш логотип в Telegram.</p>
 </div>
 
 <script>
@@ -107,14 +140,22 @@ function render(){
   document.getElementById("total").textContent="Итого: $"+total.toFixed(2);
 }
 
-function checkout(){
+function sendToTelegram(){
   const cart=getCart();
   if(cart.length===0){ alert("Корзина пуста"); return; }
-  let msg="Заказ:\n";
-  cart.forEach(c=>{ msg+=`${c.item.name} - $${c.price.toFixed(2)}\n`; });
-  msg+="Общая сумма: $"+cart.reduce((s,c)=>s+c.price,0).toFixed(2);
-  alert(msg+"\nОтправьте логотип в Telegram.");
+  const fill=document.getElementById("fillColor").value;
+  const stroke=document.getElementById("strokeColor").value;
+  const nick=document.getElementById("nickname").value || "—";
+  let msg="🛒 Новый заказ:\n\n";
+  cart.forEach(c=>{ msg+=`• ${c.item.name} — $${c.price.toFixed(2)}\n`; });
+  msg+="\n🎨 Заливка: "+fill+"\n";
+  msg+="🖊 Обводка: "+stroke+"\n";
+  msg+="👤 Ник: "+nick+"\n";
+  msg+="\n💰 Итог: $"+cart.reduce((s,c)=>s+c.price,0).toFixed(2);
+  const url="https://t.me/theConCreator?text="+encodeURIComponent(msg);
+  window.open(url,"_blank");
 }
+
 render();
 </script>
 </body>
