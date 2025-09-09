@@ -13,17 +13,14 @@
 }
 body{margin:0; font-family:sans-serif; background:var(--bg); color:var(--text);}
 .wrap{max-width:1000px; margin:0 auto; padding:16px;}
-header{padding:16px;}
-h1{font-size:20px; margin:0 0 12px;}
-.search-box {
-  margin-bottom:16px;
-}
-.search-box input {
-  width:100%; padding:10px 14px;
-  border-radius:12px; border:none; outline:none;
-  background:#1e2235; color:var(--text);
-  font-size:14px;
-  box-shadow: var(--shadow) inset;
+header{display:flex; justify-content:space-between; align-items:center; padding:16px;}
+h1{font-size:20px;}
+.search-box{margin:0 0 16px;}
+.search-box input{
+  width:100%; max-width:100%;
+  padding:10px 14px; border-radius:12px; border:none; outline:none;
+  background:#1e2235; color:var(--text); font-size:14px;
+  box-shadow:var(--shadow) inset; box-sizing:border-box;
 }
 .grid{
   display:grid;
@@ -69,28 +66,22 @@ h1{font-size:20px; margin:0 0 12px;}
 }
 .floating-cart span{font-size:14px; background:#ff4444; border-radius:50%; padding:2px 6px; margin-left:4px;}
 .floating-cart:hover{opacity:0.9;}
-.notice {
-  font-size:13px;
-  color:var(--muted);
-  margin-top:24px;
-  line-height:1.4;
-}
-.notice a { color:var(--accent); text-decoration:none; }
-.notice a:hover { text-decoration:underline; }
+.notice{margin-top:24px; font-size:14px; color:var(--muted);}
+.notice a{color:var(--accent);}
 </style>
 </head>
 <body>
 <header class="wrap">
   <h1>theConCreator Emoji</h1>
-  <div class="search-box">
-    <input type="text" id="searchInput" placeholder="🔍 Поиск эмодзи по названию...">
-  </div>
 </header>
 
 <main class="wrap">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="🔍 Поиск эмодзи по названию...">
+  </div>
   <div class="grid" id="grid"></div>
   <p class="notice">
-    Важно: на сайте представлен не весь каталог, также возможно создание многих других эмодзи. 
+    Важно: не нашли то, что искали? На сайте представлен не весь каталог, также возможно создание многих других эмодзи. 
     Чтобы узнать могу ли я сделать тот или иной эмодзи пишите в лс: 
     <a href="https://t.me/theConCreator" target="_blank">@theConCreator</a>
   </p>
@@ -130,7 +121,6 @@ const hits = ["HeartArms","TopSign","PlushPepe","Card"];
 const discounts = ["Rock","Cube1","Flag1"];
 const PRICE = 1;
 const animations = {};
-let searchQuery = "";
 
 function getCart(){ return JSON.parse(localStorage.getItem("cart")||"[]"); }
 function saveCart(cart){ localStorage.setItem("cart", JSON.stringify(cart)); updateCartCount(); }
@@ -153,8 +143,10 @@ function updateCartCount(){
 
 function render(){
   const cart=getCart();
-  const filtered = items.filter(i => i.name.toLowerCase().includes(searchQuery));
-  const sortedItems = [...filtered].sort((a,b)=>{
+  const query=document.getElementById("searchInput").value.toLowerCase();
+  const filteredItems=items.filter(it=>it.name.toLowerCase().includes(query));
+
+  const sortedItems = [...filteredItems].sort((a,b)=>{
     const aScore=(hits.includes(a.id)?2:0)+(discounts.includes(a.id)?1:0);
     const bScore=(hits.includes(b.id)?2:0)+(discounts.includes(b.id)?1:0);
     return bScore - aScore;
@@ -220,10 +212,7 @@ function preloadAnimations(){
   });
 }
 
-document.getElementById("searchInput").addEventListener("input", e=>{
-  searchQuery = e.target.value.toLowerCase();
-  render();
-});
+document.getElementById("searchInput").addEventListener("input",render);
 
 render();
 </script>
