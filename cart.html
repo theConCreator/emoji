@@ -61,7 +61,7 @@ input[type="text"]{width:100%;}
   <h1>Корзина</h1>
   <div id="grid" class="grid"></div>
   <div class="total" id="total"></div>
-
+<!-- Made by @theConCreator -->
   <div class="options">
     <h2>Персонализация заказа</h2>
     <div class="option-group">
@@ -77,24 +77,24 @@ input[type="text"]{width:100%;}
       <input type="text" id="nickname" placeholder="Надпись на эмодзи">
     </div>
   </div>
-
+<!-- Made by @theConCreator -->
   <div class="controls">
     <button class="btn" onclick="clearCart()">Очистить корзину</button>
     <a href="index.html" class="btn" style="text-align:center; display:block;">⬅ Назад</a>
     <button class="btn" onclick="sendToTelegram()">Отправить заказ</button>
   </div>
 </div>
-
+<!-- Made by @theConCreator -->
 <script>
 const hits=["HeartArms","TopSign","Card","PlushPepe"];
 const discounts=[];
 const PRICE=1;
-
+<!-- Made by @theConCreator -->
 function getCart(){ return JSON.parse(localStorage.getItem("cart")||"[]"); }
 function saveCart(cart){ localStorage.setItem("cart", JSON.stringify(cart)); render(); }
 function removeItem(id){ saveCart(getCart().filter(c=>c.item.id!==id)); }
 function clearCart(){ saveCart([]); }
-
+<!-- Made by @theConCreator -->
 function render(){
   const cart=getCart();
   const grid=document.getElementById("grid");
@@ -118,7 +118,7 @@ function render(){
   }).join('');
   document.getElementById("total").textContent="Итого: $"+total.toFixed(2);
 }
-
+<!-- Made by @theConCreator -->
 function sendToTelegram(){
   const cart=getCart();
   if(cart.length===0){ alert("Корзина пуста"); return; }
@@ -134,7 +134,7 @@ function sendToTelegram(){
   const url="https://t.me/theConCreator?text="+encodeURIComponent(msg);
   window.open(url,"_blank");
 }
-
+<!-- Made by @theConCreator -->
 render();
 </script>
 </body>
