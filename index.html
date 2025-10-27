@@ -74,7 +74,6 @@ h1{font-size:20px;}
 <header class="wrap">
   <h1>theConCreator Emoji</h1>
 </header>
-
 <main class="wrap">
   <div class="search-box">
     <input type="text" id="searchInput" placeholder="🔍 Поиск эмодзи по названию...">
@@ -86,9 +85,7 @@ h1{font-size:20px;}
     <a href="https://t.me/theConCreator" target="_blank">@theConCreator</a>
   </p>
 </main>
-
 <a href="cart.html" class="floating-cart" id="cartBtn">🛒<span id="cartCount">0</span></a>
-
 <script>
 const items = [
   {id:"Flag1", name:"Флаг"},
@@ -116,15 +113,15 @@ const items = [
   {id:"Wallet", name:"Кошелёк"},
   {id:"PepeSign", name:"Пепе табличка"}
 ];
-
+<!-- Made by @theConCreator -->
 const hits = ["HeartArms","TopSign","PlushPepe","Card"];
 const discounts = [];
 const PRICE = 1;
 const animations = {};
-
+<!-- Made by @theConCreator -->
 function getCart(){ return JSON.parse(localStorage.getItem("cart")||"[]"); }
 function saveCart(cart){ localStorage.setItem("cart", JSON.stringify(cart)); updateCartCount(); }
-
+<!-- Made by @theConCreator -->
 function toggleCart(item){
   let cart=getCart();
   const exists=cart.find(c=>c.item.id===item.id);
@@ -136,11 +133,11 @@ function toggleCart(item){
   saveCart(cart);
   render();
 }
-
+<!-- Made by @theConCreator -->
 function updateCartCount(){
   document.getElementById("cartCount").textContent=getCart().length;
 }
-
+<!-- Made by @theConCreator -->
 function render(){
   const cart=getCart();
   const query=document.getElementById("searchInput").value.toLowerCase();
@@ -151,7 +148,7 @@ function render(){
     const bScore=(hits.includes(b.id)?2:0)+(discounts.includes(b.id)?1:0);
     return bScore - aScore;
   });
-
+<!-- Made by @theConCreator -->
   document.getElementById("grid").innerHTML = sortedItems.map(item=>{
     const inCart = cart.some(c=>c.item.id===item.id);
     const hitClass = hits.includes(item.id)?"hit":"";
@@ -171,11 +168,11 @@ function render(){
       </div>
     `;
   }).join('');
-
+<!-- Made by @theConCreator -->
   preloadAnimations();
   updateCartCount();
 }
-
+<!-- Made by @theConCreator -->
 function preloadAnimations(){
   items.forEach(item=>{
     const animBox=document.getElementById(`anim-${item.id}`);
@@ -189,14 +186,14 @@ function preloadAnimations(){
       });
       animBox.style.display="none";
       animations[item.id]=anim;
-
+<!-- Made by @theConCreator -->
       anim.addEventListener("complete",()=>{
         animBox.style.display="none";
         const img = animBox.parentElement.querySelector("img");
         if(img) img.style.display="block";
         animBox.dataset.playing="false";
       });
-
+<!-- Made by @theConCreator -->
       const box=document.getElementById("box-"+item.id);
       const img=box.querySelector("img");
       ["mouseenter","click","touchstart"].forEach(ev=>{
@@ -211,9 +208,9 @@ function preloadAnimations(){
     }
   });
 }
-
+<!-- Made by @theConCreator -->
 document.getElementById("searchInput").addEventListener("input",render);
-
+<!-- Made by @theConCreator -->
 render();
 </script>
 </body>
